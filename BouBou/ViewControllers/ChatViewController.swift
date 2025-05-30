@@ -1,13 +1,13 @@
 //
-//  FriendsViewController.swift
+//  ChatViewController.swift
 //  BouBou
 //
-//  Created by Hongrui Wu  on 5/25/25.
+//  Created by Hongrui Wu  on 5/30/25.
 //
 
 import UIKit
 
-class FriendsViewController: UIViewController {
+class ChatViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
