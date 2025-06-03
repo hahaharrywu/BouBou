@@ -4,6 +4,7 @@ import FirebaseStorage
 import FirebaseFirestore
 import FirebaseAuth
 
+// Temporary comment for contributor registration
 class AddSendViewController: UIViewController,
                               UIImagePickerControllerDelegate,
                               UINavigationControllerDelegate,UITextFieldDelegate{
