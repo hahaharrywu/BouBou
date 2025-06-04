@@ -48,18 +48,16 @@ class AddSendViewController: UIViewController,
     @IBAction func saveButtonTapped(_ sender: UIButton) {
         // Grab all current values from the screen
         let color = colorLabel.text ?? "N/A"
-        let grade = gradeLabel.text ?? "N/A"
+            let grade = gradeLabel.text ?? "N/A"
         let status = statusLabel.text ?? "N/A"
         let attempts = attemptsLabel.text ?? "N/A"
         let feeling = feelingTextField.text ?? ""
         let timestamp = Date()
 
-        // If there's an image, upload it first
         if let image = sendImageView.image {
             uploadImageToFirebase(image) { imageUrl in
-                let url = imageUrl ?? "" // fallback to empty string
+                let url = imageUrl ?? ""
 
-                // Create a Send object
                 let send = Send(color: color,
                                 grade: grade,
                                 status: status,
@@ -68,11 +66,44 @@ class AddSendViewController: UIViewController,
                                 imageUrl: url,
                                 timestamp: timestamp)
 
-                // Save to Firestore
-                self.saveSendToFirestore(send)
+                // Save as draft: keep input, show alert, stay on page
+                self.saveSendToFirestore(send,
+                                         shouldResetFields: false,
+                                         shouldJumpToFeed: false,
+                                         showAlert: true)
             }
         }
     }
+    
+    @IBAction func saveAndShareButtonTapped(_ sender: UIButton) {
+        let color = colorLabel.text ?? "N/A"
+           let grade = gradeLabel.text ?? "N/A"
+       let status = statusLabel.text ?? "N/A"
+       let attempts = attemptsLabel.text ?? "N/A"
+       let feeling = feelingTextField.text ?? ""
+       let timestamp = Date()
+
+       if let image = sendImageView.image {
+           uploadImageToFirebase(image) { imageUrl in
+               let url = imageUrl ?? ""
+
+               let send = Send(color: color,
+                               grade: grade,
+                               status: status,
+                               attempts: attempts,
+                               feeling: feeling,
+                               imageUrl: url,
+                               timestamp: timestamp)
+
+               // Share immediately: clear input, no alert, go to Feed
+               self.saveSendToFirestore(send,
+                                        shouldResetFields: true,
+                                        shouldJumpToFeed: true,
+                                        showAlert: false)
+           }
+       }
+    }
+
 
 
 
@@ -396,15 +427,19 @@ class AddSendViewController: UIViewController,
         }
     }
     
-    /// Saves the Send object to Firebase Firestore
-    /// - Parameter send: the Send instance containing user-submitted data
-    func saveSendToFirestore(_ send: Send) {
+    /// Saves the Send object to Firebase Firestore with optional UI actions
+    /// - Parameters:
+    ///   - send: the Send instance containing user-submitted data
+    ///   - shouldResetFields: whether to reset the input fields after saving
+    ///   - shouldJumpToFeed: whether to switch to the Feed tab after saving
+    ///   - showAlert: whether to display a confirmation alert
+    func saveSendToFirestore(_ send: Send, shouldResetFields: Bool, shouldJumpToFeed: Bool, showAlert: Bool) {
         let db = Firestore.firestore()
-        
-        // Obtaining the UID of the current user
+
+        // Get current user ID
         let userID = Auth.auth().currentUser?.uid ?? "unknown"
 
-        // Prepare dictionary from Send struct
+        // Prepare dictionary for Firestore
         let sendData: [String: Any] = [
             "userId": userID,
             "color": send.color,
@@ -416,20 +451,25 @@ class AddSendViewController: UIViewController,
             "timestamp": Timestamp(date: send.timestamp)
         ]
 
-        // Save to 'sends' collection
+        // Save data to Firestore
         db.collection("sends").addDocument(data: sendData) { error in
             if let error = error {
                 print("❌ Failed to save send: \(error.localizedDescription)")
-            } else {
-                print("✅ Send saved to Firestore!")
-                // ✅ Send saved to Firestore!
-                // Show confirmation alert
-                let alert = UIAlertController(title: "Success", message: "Your send was saved!", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-                DispatchQueue.main.async {
+                return
+            }
+
+            print("✅ Send saved to Firestore!")
+
+            DispatchQueue.main.async {
+                // Optionally show alert
+                if showAlert {
+                    let alert = UIAlertController(title: "Success", message: "Your send was saved!", preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: "OK", style: .default))
                     self.present(alert, animated: true)
-                    
-                    // Reset all fields to default values
+                }
+
+                // Optionally reset the input fields
+                if shouldResetFields {
                     self.colorLabel.text = "Color"
                     self.gradeLabel.text = "V#"
                     self.statusLabel.text = "Pop-up"
@@ -437,6 +477,11 @@ class AddSendViewController: UIViewController,
                     self.feelingTextField.text = ""
                     self.sendImageView.image = UIImage(systemName: "photo")
                     self.sendImageView.contentMode = .scaleAspectFit
+                }
+
+                // Optionally jump to Feed tab (index 3)
+                if shouldJumpToFeed {
+                    self.tabBarController?.selectedIndex = 3
                 }
             }
         }
