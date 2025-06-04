@@ -22,7 +22,7 @@
 		</dict>
 	</dict>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>We need access to your photos to attach climbing images</string>
+	<string>We need your photo to record your bouldering send</string>
 	<key>NSCameraUsageDescription</key>
 	<string>We need access to your camera to take climbing pictures</string>
 </dict>
