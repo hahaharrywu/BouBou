@@ -8,6 +8,7 @@
 import UIKit
 import Firebase
 import FirebaseFirestore
+import FirebaseAuth //Cecilia added
 
 class ChatViewController: UIViewController {
     
@@ -92,7 +93,8 @@ class ChatViewController: UIViewController {
                     return Chat(
                         id: document.documentID,
                         participants: data["participants"] as? [String] ?? [],
-                        lastMessage: data["lastMessage"] as? String ?? "",
+                        //Cecilia comment it
+                        //lastMessage: data["lastMessage"] as? String ?? "",
                         lastMessageTimestamp: data["lastMessageTimestamp"] as? Timestamp ?? Timestamp(),
                         participantNames: data["participantNames"] as? [String: String] ?? [:]
                     )
@@ -341,7 +343,7 @@ class ChatViewController: UIViewController {
     private func navigateToMessages(chatID: String) {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         if let messagesVC = storyboard.instantiateViewController(withIdentifier: "MessagesViewController") as? MessagesViewController {
-            messagesVC.chatID = chatID
+            //messagesVC.chatID = chatID Cecilia comment it
             navigationController?.pushViewController(messagesVC, animated: true)
         }
     }

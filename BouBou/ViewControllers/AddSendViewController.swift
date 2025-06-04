@@ -422,6 +422,22 @@ class AddSendViewController: UIViewController,
                 print("❌ Failed to save send: \(error.localizedDescription)")
             } else {
                 print("✅ Send saved to Firestore!")
+                // ✅ Send saved to Firestore!
+                // Show confirmation alert
+                let alert = UIAlertController(title: "Success", message: "Your send was saved!", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+                DispatchQueue.main.async {
+                    self.present(alert, animated: true)
+                    
+                    // Reset all fields to default values
+                    self.colorLabel.text = "Color"
+                    self.gradeLabel.text = "V#"
+                    self.statusLabel.text = "Pop-up"
+                    self.attemptsLabel.text = "Pop-up"
+                    self.feelingTextField.text = ""
+                    self.sendImageView.image = UIImage(systemName: "photo")
+                    self.sendImageView.contentMode = .scaleAspectFit
+                }
             }
         }
     }
