@@ -6,13 +6,45 @@
 //
 
 import UIKit
+import Firebase
+
+// This struct represents one send record fetched from Firebase to display in the feed
+struct FeedSend {
+    let color: String
+    let grade: String
+    let status: String
+    let attempts: String
+    let feeling: String
+    let imageUrl: String
+    let userId: String
+    let timestamp: Timestamp
+
+    // Combines color and grade into one label like "Red-V3"
+    var name: String {
+        return "\(color)-\(grade)"
+    }
+
+    // Initialize from Firebase document dictionary
+    init(dict: [String: Any]) {
+        self.color = dict["color"] as? String ?? "Color"
+        self.grade = dict["grade"] as? String ?? "V?"
+        self.status = dict["status"] as? String ?? ""
+        self.attempts = dict["attempts"] as? String ?? "?"
+        self.feeling = dict["feeling"] as? String ?? ""
+        self.imageUrl = dict["imageUrl"] as? String ?? ""
+        self.userId = dict["userId"] as? String ?? ""
+        self.timestamp = dict["timestamp"] as? Timestamp ?? Timestamp()
+    }
+}
+
+
 
 class FeedViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
-
+    var sends: [FeedSend] = []
     @IBOutlet weak var tableView: UITableView!
     
-    let testData = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+    //let testData = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -20,23 +52,75 @@ class FeedViewController: UIViewController, UITableViewDelegate, UITableViewData
         tableView.delegate = self
         tableView.dataSource = self
         tableView.showsVerticalScrollIndicator = false
+        
+        fetchData()
     }
     
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return testData.count
+    // Load send records from Firestore and update the table view
+    func fetchData() {
+        let db = Firestore.firestore()
+        db.collection("sends")
+            .order(by: "timestamp", descending: true) // show latest sends first
+            .getDocuments { snapshot, error in
+                if let error = error {
+                    print("❌ Failed to load sends: \(error.localizedDescription)")
+                    return
+                }
+
+                // Map each document to a Send object
+                self.sends = snapshot?.documents.compactMap {
+                    FeedSend(dict: $0.data())
+                } ?? []
+
+                // Refresh the table view on the main thread
+                DispatchQueue.main.async {
+                    self.tableView.reloadData()
+                }
+            }
     }
 
+    
+    
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return sends.count
+    }
+
+    // Configure the appearance of each feed row
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "FeedCell", for: indexPath) as? FeedTableViewCell else {
             return UITableViewCell()
         }
 
-        cell.nameLabel.text = "Name \(testData[indexPath.row])"
-        cell.sendInfoLabel.text = "Send Info \(indexPath.row)"
-        cell.summaryLabel.text = "Short Summary \(indexPath.row)"
-        cell.feelingLabel.text = "Feeling \(indexPath.row)"
+        let send = sends[indexPath.row] // Get the Send object for this row
+
+        // Set the name as "Color-Grade"
+        cell.nameLabel.text = send.name
+
+        // Example: "Sent this with 3 Attempts."
+        cell.sendInfoLabel.text = "Sent this with \(send.attempts) Attempts."
+
+        // Show the climbing status
+        cell.summaryLabel.text = send.status
+
+        // Show the user's comment/feeling
+        cell.feelingLabel.text = send.feeling
+
+        // Set a default avatar image
         cell.avatarImageView.image = UIImage(systemName: "person.circle")
-        cell.sendImageView.image = UIImage(systemName: "photo")
+
+        // Load the send image from URL (if any)
+        if let url = URL(string: send.imageUrl), !send.imageUrl.isEmpty {
+            URLSession.shared.dataTask(with: url) { data, _, _ in
+                if let data = data {
+                    DispatchQueue.main.async {
+                        cell.sendImageView.image = UIImage(data: data)
+                    }
+                }
+            }.resume()
+        } else {
+            cell.sendImageView.image = UIImage(systemName: "photo")
+        }
 
         return cell
     }

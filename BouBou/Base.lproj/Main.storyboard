@@ -1362,6 +1362,9 @@
                                             <fontDescription key="titleFontDescription" type="system" pointSize="24"/>
                                             <color key="baseBackgroundColor" red="0.83606690169999998" green="0.4381604791" blue="0.3471366763" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         </buttonConfiguration>
+                                        <connections>
+                                            <action selector="saveAndShareButtonTapped:" destination="35B-tc-PbH" eventType="touchUpInside" id="4hA-ne-bHB"/>
+                                        </connections>
                                     </button>
                                 </subviews>
                             </stackView>
