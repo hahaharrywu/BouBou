@@ -48,13 +48,15 @@ class AddSendViewController: UIViewController,
     @IBAction func saveButtonTapped(_ sender: UIButton) {
         // Grab all current values from the screen
         let color = colorLabel.text ?? "N/A"
-            let grade = gradeLabel.text ?? "N/A"
+        let grade = gradeLabel.text ?? "N/A"
         let status = statusLabel.text ?? "N/A"
         let attempts = attemptsLabel.text ?? "N/A"
         let feeling = feelingTextField.text ?? ""
         let timestamp = Date()
 
-        if let image = sendImageView.image {
+        // Check if user selected a real image
+        if let image = sendImageView.image, image != UIImage(systemName: "photo") {
+            // Upload the image
             uploadImageToFirebase(image) { imageUrl in
                 let url = imageUrl ?? ""
 
@@ -72,36 +74,68 @@ class AddSendViewController: UIViewController,
                                          shouldJumpToFeed: false,
                                          showAlert: true)
             }
+        } else {
+            // No real image selected → just save with imageUrl = ""
+            let send = Send(color: color,
+                            grade: grade,
+                            status: status,
+                            attempts: attempts,
+                            feeling: feeling,
+                            imageUrl: "",
+                            timestamp: timestamp)
+
+            // Save as draft: keep input, show alert, stay on page
+            self.saveSendToFirestore(send,
+                                     shouldResetFields: false,
+                                     shouldJumpToFeed: false,
+                                     showAlert: true)
         }
     }
     
     @IBAction func saveAndShareButtonTapped(_ sender: UIButton) {
         let color = colorLabel.text ?? "N/A"
-           let grade = gradeLabel.text ?? "N/A"
-       let status = statusLabel.text ?? "N/A"
-       let attempts = attemptsLabel.text ?? "N/A"
-       let feeling = feelingTextField.text ?? ""
-       let timestamp = Date()
+        let grade = gradeLabel.text ?? "N/A"
+        let status = statusLabel.text ?? "N/A"
+        let attempts = attemptsLabel.text ?? "N/A"
+        let feeling = feelingTextField.text ?? ""
+        let timestamp = Date()
 
-       if let image = sendImageView.image {
-           uploadImageToFirebase(image) { imageUrl in
-               let url = imageUrl ?? ""
+        // Check if user selected a real image
+        if let image = sendImageView.image, image != UIImage(systemName: "photo") {
+            // Upload the image
+            uploadImageToFirebase(image) { imageUrl in
+                let url = imageUrl ?? ""
 
-               let send = Send(color: color,
-                               grade: grade,
-                               status: status,
-                               attempts: attempts,
-                               feeling: feeling,
-                               imageUrl: url,
-                               timestamp: timestamp)
+                let send = Send(color: color,
+                                grade: grade,
+                                status: status,
+                                attempts: attempts,
+                                feeling: feeling,
+                                imageUrl: url,
+                                timestamp: timestamp)
 
-               // Share immediately: clear input, no alert, go to Feed
-               self.saveSendToFirestore(send,
-                                        shouldResetFields: true,
-                                        shouldJumpToFeed: true,
-                                        showAlert: false)
-           }
-       }
+                // Share immediately: clear input, no alert, go to Feed
+                self.saveSendToFirestore(send,
+                                         shouldResetFields: true,
+                                         shouldJumpToFeed: true,
+                                         showAlert: false)
+            }
+        } else {
+            // No real image selected → just save with imageUrl = ""
+            let send = Send(color: color,
+                            grade: grade,
+                            status: status,
+                            attempts: attempts,
+                            feeling: feeling,
+                            imageUrl: "",
+                            timestamp: timestamp)
+
+            // Share immediately: clear input, no alert, go to Feed
+            self.saveSendToFirestore(send,
+                                     shouldResetFields: true,
+                                     shouldJumpToFeed: true,
+                                     showAlert: false)
+        }
     }
 
 
@@ -405,9 +439,12 @@ class AddSendViewController: UIViewController,
 
         // Create a reference in Firebase Storage
         let storageRef = Storage.storage().reference().child(fileName)
+        
+        let metadata = StorageMetadata()
+        metadata.contentType = "image/jpeg"
 
         // Upload the image data
-        storageRef.putData(imageData, metadata: nil) { metadata, error in
+        storageRef.putData(imageData, metadata: metadata) { metadata, error in
             if let error = error {
                 print("❌ Image upload failed: \(error)")
                 completion(nil)
