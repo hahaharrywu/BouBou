@@ -40,11 +40,16 @@ class ChatViewController: UIViewController {
     }
     
     private func setupUI() {
+        title = "Chats"
         navigationController?.navigationBar.prefersLargeTitles = true
     }
     
     private func setupTableView() {
-        // todo - table styling
+        chatsTableView.delegate = self
+        chatsTableView.dataSource = self
+        chatsTableView.register(ChatTableViewCell.self, forCellReuseIdentifier: "ChatCell")
+        chatsTableView.separatorStyle = .singleLine
+        chatsTableView.rowHeight = 80
     }
     
     private func getCurrentUser() {
@@ -93,8 +98,7 @@ class ChatViewController: UIViewController {
                     return Chat(
                         id: document.documentID,
                         participants: data["participants"] as? [String] ?? [],
-                        //Cecilia comment it
-                        //lastMessage: data["lastMessage"] as? String ?? "",
+                        lastMessage: data["lastMessage"] as? String ?? "",
                         lastMessageTimestamp: data["lastMessageTimestamp"] as? Timestamp ?? Timestamp(),
                         participantNames: data["participantNames"] as? [String: String] ?? [:]
                     )
@@ -177,6 +181,7 @@ class ChatViewController: UIViewController {
                     user1.id: user1.username,
                     user2.id: user2.username
                 ],
+                "lastMessage": "",
                 "lastMessageTimestamp": Timestamp(),
                 "createdAt": Timestamp()
             ]
@@ -272,7 +277,7 @@ class ChatViewController: UIViewController {
             )
             
             DispatchQueue.main.async {
-                // todo
+                self?.showUserActionSheet(for: user)
             }
         }
     }
@@ -302,9 +307,29 @@ class ChatViewController: UIViewController {
                 )
                 
                 DispatchQueue.main.async {
-                    // todo
+                    self?.showUserActionSheet(for: user)
                 }
             }
+    }
+    
+    private func showUserActionSheet(for user: User) {
+        guard let currentUserID = Auth.auth().currentUser?.uid,
+              user.id != currentUserID else {
+            showAlert(message: "You cannot add yourself as a friend")
+            return
+        }
+        
+        let actionSheet = UIAlertController(title: user.username, message: "User ID: \(user.id)", preferredStyle: .actionSheet)
+        let sendRequestAction = UIAlertAction(title: "Send Friend Request", style: .default) { [weak self] _ in
+            self?.sendFriendRequest(to: user.id)
+        }
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
+        
+        actionSheet.addAction(sendRequestAction)
+        actionSheet.addAction(cancelAction)
+        
+        present(actionSheet, animated: true)
     }
     
     private func showFriendRequestsViewController() {
@@ -343,7 +368,7 @@ class ChatViewController: UIViewController {
     private func navigateToMessages(chatID: String) {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         if let messagesVC = storyboard.instantiateViewController(withIdentifier: "MessagesViewController") as? MessagesViewController {
-            //messagesVC.chatID = chatID Cecilia comment it
+            messagesVC.chatID = chatID
             navigationController?.pushViewController(messagesVC, animated: true)
         }
     }
@@ -353,11 +378,45 @@ class ChatViewController: UIViewController {
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert, animated: true)
     }
+    
+    private func getChatDisplayName(for chat: Chat) -> String {
+        guard let currentUserID = Auth.auth().currentUser?.uid else { return "Unknown" }
+        
+        let otherParticipants = chat.participants.filter { $0 != currentUserID }
+        if let otherParticipantID = otherParticipants.first,
+           let name = chat.participantNames[otherParticipantID] {
+            return name
+        }
+        
+        return "Chat"
+    }
+}
+
+extension ChatViewController: UITableViewDataSource, UITableViewDelegate {
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return chats.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "ChatCell", for: indexPath) as! ChatTableViewCell
+        let chat = chats[indexPath.row]
+        
+        cell.configure(with: chat, displayName: getChatDisplayName(for: chat))
+        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        let chat = chats[indexPath.row]
+        navigateToMessages(chatID: chat.id)
+    }
 }
 
 struct Chat {
     let id: String
     let participants: [String]
+    let lastMessage: String
     let lastMessageTimestamp: Timestamp
     let participantNames: [String: String]
 }
@@ -376,4 +435,97 @@ struct FriendRequest {
     let senderUsername: String
     let status: String // "pending", "accepted", "declined"
     let timestamp: Timestamp
+}
+
+class ChatTableViewCell: UITableViewCell {
+    
+    private let profileImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        imageView.layer.cornerRadius = 25
+        imageView.backgroundColor = .systemGray5
+        return imageView
+    }()
+    
+    private let nameLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
+        label.textColor = .label
+        return label
+    }()
+    
+    private let lastMessageLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = UIFont.systemFont(ofSize: 14)
+        label.textColor = .secondaryLabel
+        label.numberOfLines = 1
+        return label
+    }()
+    
+    private let timeLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = UIFont.systemFont(ofSize: 12)
+        label.textColor = .tertiaryLabel
+        return label
+    }()
+    
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        setupViews()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func setupViews() {
+        contentView.addSubview(profileImageView)
+        contentView.addSubview(nameLabel)
+        contentView.addSubview(lastMessageLabel)
+        contentView.addSubview(timeLabel)
+        
+        NSLayoutConstraint.activate([
+            profileImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            profileImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            profileImageView.widthAnchor.constraint(equalToConstant: 50),
+            profileImageView.heightAnchor.constraint(equalToConstant: 50),
+            
+            nameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 12),
+            nameLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 16),
+            nameLabel.trailingAnchor.constraint(equalTo: timeLabel.leadingAnchor, constant: -8),
+            
+            lastMessageLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
+            lastMessageLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 4),
+            lastMessageLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
+            
+            timeLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            timeLabel.centerYAnchor.constraint(equalTo: nameLabel.centerYAnchor)
+        ])
+    }
+    
+    func configure(with chat: Chat, displayName: String) {
+        nameLabel.text = displayName
+        lastMessageLabel.text = chat.lastMessage.isEmpty ? "No messages yet" : chat.lastMessage
+        
+        let formatter = DateFormatter()
+        let date = chat.lastMessageTimestamp.dateValue()
+        
+        if Calendar.current.isDateInToday(date) {
+            formatter.timeStyle = .short
+        } else if Calendar.current.isDate(date, equalTo: Date(), toGranularity: .weekOfYear) {
+            formatter.dateFormat = "E"
+        } else {
+            formatter.dateFormat = "M/d/yy"
+        }
+        
+        timeLabel.text = formatter.string(from: date)
+        
+        profileImageView.image = UIImage(systemName: "person.circle.fill")
+        profileImageView.tintColor = .systemBlue
+    }
 }

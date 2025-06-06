@@ -162,17 +162,36 @@
         <!--FriendRequests-->
         <scene sceneID="ipk-Xk-TpE">
             <objects>
-                <viewController title="FriendRequests" id="kh9-iP-bF9" customClass="FriendRequestsViewController" customModule="BouBou" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="FriendRequestsViewController" title="FriendRequests" id="kh9-iP-bF9" customClass="FriendRequestsViewController" customModule="BouBou" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="xj2-qm-fud">
                         <rect key="frame" x="0.0" y="0.0" width="430" height="932"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="DPP-l3-JWE">
+                                <rect key="frame" x="20" y="156" width="390" height="708"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            </tableView>
+                            <segmentedControl opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="seW-oi-nNU">
+                                <rect key="frame" x="150" y="118" width="131" height="31"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <segments>
+                                    <segment title="First"/>
+                                    <segment title="Second"/>
+                                </segments>
+                            </segmentedControl>
+                        </subviews>
                         <viewLayoutGuide key="safeArea" id="8G1-6k-rZ9"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
+                    <connections>
+                        <outlet property="requestsTableView" destination="DPP-l3-JWE" id="mg5-I4-Vpf"/>
+                        <outlet property="segmentedControl" destination="seW-oi-nNU" id="77v-DE-FRs"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="gCm-4M-XH4" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-1367" y="-1731"/>
+            <point key="canvasLocation" x="-1367.4418604651162" y="-1731.1158798283263"/>
         </scene>
         <!--Messages-->
         <scene sceneID="NEo-Gq-nSG">
@@ -182,19 +201,47 @@
                         <rect key="frame" x="0.0" y="0.0" width="430" height="932"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
+                            <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="yVM-pG-BQc">
+                                <rect key="frame" x="20" y="800" width="390" height="64"/>
+                                <subviews>
+                                    <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="zfF-4l-Ygc">
+                                        <rect key="frame" x="8" y="15" width="305" height="34"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                        <textInputTraits key="textInputTraits"/>
+                                    </textField>
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UV2-y1-ijC">
+                                        <rect key="frame" x="321" y="15" width="64" height="35"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="plain" title="Send"/>
+                                    </button>
+                                </subviews>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            </view>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="Tl0-ZP-5tr">
-                                <rect key="frame" x="95" y="326" width="240" height="128"/>
+                                <rect key="frame" x="20" y="118" width="390" height="674"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </tableView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="bkB-5x-4Bk"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="bkB-5x-4Bk" firstAttribute="bottom" secondItem="yVM-pG-BQc" secondAttribute="bottom" id="Xne-TK-DTH"/>
+                        </constraints>
                     </view>
+                    <connections>
+                        <outlet property="bottomConstraint" destination="yVM-pG-BQc" id="1GG-AU-IQz"/>
+                        <outlet property="messageInputView" destination="yVM-pG-BQc" id="czz-0s-hCw"/>
+                        <outlet property="messageTextField" destination="zfF-4l-Ygc" id="4KF-G2-yeT"/>
+                        <outlet property="messagesTableView" destination="Tl0-ZP-5tr" id="Lpz-L0-axE"/>
+                        <outlet property="sendButton" destination="UV2-y1-ijC" id="SWn-SX-uYX"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="0XR-cO-Qvg" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-491" y="-1731"/>
+            <point key="canvasLocation" x="-491.16279069767444" y="-1731.1158798283263"/>
         </scene>
         <!--Chat-->
         <scene sceneID="agC-Gh-eC5">
@@ -1152,10 +1199,10 @@
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" id="rJo-oM-aV1">
-                                        <rect key="frame" x="0.0" y="50" width="354" height="44.666667938232422"/>
+                                        <rect key="frame" x="0.0" y="50" width="354" height="43.666667938232422"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="rJo-oM-aV1" id="NMt-z6-GAQ">
-                                            <rect key="frame" x="0.0" y="0.0" width="354" height="44.666667938232422"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="354" height="43.666667938232422"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Jmo-kz-kO9">
