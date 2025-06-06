@@ -1,0 +1,40 @@
+# Xcode
+BouBou.xcodeproj/project.xcworkspace/xcuserdata/
+*.xcuserstate
+
+# Build generated
+DerivedData/
+build/
+
+# Swift Package Manager
+.swiftpm/
+.build/
+
+# CocoaPods
+Pods/
+
+# Carthage
+Carthage/Build/
+
+# fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# Archives
+*.xcarchive
+
+# Playgrounds
+timeline.xctimeline
+playground.xcworkspace
+
+# User-specific files
+*.moved-aside
+*.xcuserdatad
+*.swp
+*.lock
+*.DS_Store
+
+# IDE Workspace
+*.xcworkspace/xcuserdata/
