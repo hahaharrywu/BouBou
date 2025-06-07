@@ -18,6 +18,8 @@ class ProfileViewController: UIViewController {
     @IBOutlet weak var avatarImageView: UIImageView!
     @IBOutlet weak var chartView: UIView!
     @IBOutlet weak var currentGradeLabel: UILabel!
+    @IBOutlet weak var lastSessionContainerView: UIView!
+
     
     
     @IBOutlet weak var v1NumberLabel: UILabel!
@@ -119,7 +121,10 @@ class ProfileViewController: UIViewController {
         if let user = Auth.auth().currentUser {
             updateLastSessionGrid(for: user.uid)
         }
-
+        
+        let tap = UITapGestureRecognizer(target: self, action: #selector(showLastSession))
+        lastSessionContainerView.addGestureRecognizer(tap)
+        lastSessionContainerView.isUserInteractionEnabled = true
     }
     
     
@@ -371,6 +376,14 @@ class ProfileViewController: UIViewController {
         ])
 
         hostingController.didMove(toParent: self)
+    }
+    
+    @objc func showLastSession() {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        if let vc = storyboard.instantiateViewController(withIdentifier: "LastSessionViewController") as? LastSessionViewController {
+            vc.modalPresentationStyle = .formSheet // 或 .fullScreen, .pageSheet
+            self.present(vc, animated: true)
+        }
     }
 
 

@@ -1678,6 +1678,7 @@
                         <outlet property="avatarImageView" destination="gqz-hx-osi" id="0I5-3Y-N4L"/>
                         <outlet property="chartView" destination="Tk4-B0-XyR" id="lwL-wO-cTs"/>
                         <outlet property="currentGradeLabel" destination="CGB-y2-E5P" id="j2x-Ym-O6d"/>
+                        <outlet property="lastSessionContainerView" destination="980-gV-u4m" id="8zr-YM-dBc"/>
                         <outlet property="lastSessionGradeLabel_1" destination="axv-ya-fkn" id="UrR-8C-yaJ"/>
                         <outlet property="lastSessionGradeLabel_10" destination="krF-yR-wK3" id="AUB-Rk-VvX"/>
                         <outlet property="lastSessionGradeLabel_11" destination="7y4-PY-InN" id="nX9-by-6gh"/>
@@ -2057,13 +2058,13 @@
         <!--Last Session View Controller-->
         <scene sceneID="Q8h-nW-evG">
             <objects>
-                <viewController id="psU-AE-Y04" customClass="LastSessionViewController" customModule="BouBou" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="cfA-mF-7kP">
+                <viewController storyboardIdentifier="LastSessionViewController" id="psU-AE-Y04" customClass="LastSessionViewController" customModule="BouBou" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="cfA-mF-7kP" customClass="last">
                         <rect key="frame" x="0.0" y="0.0" width="430" height="932"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="bsj-iw-ppv">
-                                <rect key="frame" x="5" y="118" width="420" height="775"/>
+                                <rect key="frame" x="5" y="126" width="420" height="767"/>
                                 <color key="backgroundColor" red="0.98365753889999996" green="0.94552129510000005" blue="0.9120374322" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="FeedCell" rowHeight="200" id="rjF-d0-hFF" customClass="FeedTableViewCell" customModule="BouBou" customModuleProvider="target">
@@ -2156,7 +2157,7 @@
                                 </prototypes>
                             </tableView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Last Session" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LCC-xM-uEH">
-                                <rect key="frame" x="20" y="59" width="390" height="51"/>
+                                <rect key="frame" x="20" y="67" width="390" height="51"/>
                                 <fontDescription key="fontDescription" type="system" weight="black" pointSize="42"/>
                                 <color key="textColor" red="0.83606690169999998" green="0.4381604791" blue="0.3471366763" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
@@ -2165,17 +2166,17 @@
                         <viewLayoutGuide key="safeArea" id="DM9-z6-CsR"/>
                         <color key="backgroundColor" red="0.98365753889999996" green="0.94552129510000005" blue="0.9120374322" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="LCC-xM-uEH" firstAttribute="top" secondItem="DM9-z6-CsR" secondAttribute="top" id="3ea-fI-iRe"/>
                             <constraint firstItem="bsj-iw-ppv" firstAttribute="top" secondItem="LCC-xM-uEH" secondAttribute="bottom" constant="8" id="W9o-FA-8W2"/>
                             <constraint firstItem="LCC-xM-uEH" firstAttribute="leading" secondItem="DM9-z6-CsR" secondAttribute="leading" constant="20" id="ZBi-QM-pkT"/>
                             <constraint firstItem="DM9-z6-CsR" firstAttribute="trailing" secondItem="LCC-xM-uEH" secondAttribute="trailing" constant="20" id="fgQ-KK-GE0"/>
                             <constraint firstItem="DM9-z6-CsR" firstAttribute="trailing" secondItem="bsj-iw-ppv" secondAttribute="trailing" constant="5" id="jyp-AZ-qak"/>
                             <constraint firstItem="DM9-z6-CsR" firstAttribute="bottom" secondItem="bsj-iw-ppv" secondAttribute="bottom" constant="5" id="m4r-Qo-tAo"/>
+                            <constraint firstItem="LCC-xM-uEH" firstAttribute="top" secondItem="DM9-z6-CsR" secondAttribute="top" constant="8" id="wce-XA-jbD"/>
                             <constraint firstItem="bsj-iw-ppv" firstAttribute="leading" secondItem="DM9-z6-CsR" secondAttribute="leading" constant="5" id="y4V-1t-6nb"/>
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="tableView" destination="bsj-iw-ppv" id="fvq-Sw-oFi"/>
+                        <outlet property="tableView" destination="bsj-iw-ppv" id="7xJ-8x-HZz"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="OhC-AJ-ch2" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
