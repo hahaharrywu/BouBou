@@ -34,6 +34,51 @@ class ProfileViewController: UIViewController {
     @IBOutlet weak var v12NumberLabel: UILabel!
     
     
+    @IBOutlet weak var lastSessionSubView_1: UIView!
+    @IBOutlet weak var lastSessionSubView_2: UIView!
+    @IBOutlet weak var lastSessionSubView_3: UIView!
+    @IBOutlet weak var lastSessionSubView_4: UIView!
+    @IBOutlet weak var lastSessionSubView_5: UIView!
+    @IBOutlet weak var lastSessionSubView_6: UIView!
+    @IBOutlet weak var lastSessionSubView_7: UIView!
+    @IBOutlet weak var lastSessionSubView_8: UIView!
+    @IBOutlet weak var lastSessionSubView_9: UIView!
+    @IBOutlet weak var lastSessionSubView_10: UIView!
+    @IBOutlet weak var lastSessionSubView_11: UIView!
+    @IBOutlet weak var lastSessionSubView_12: UIView!
+    
+    
+    @IBOutlet weak var lastSessionGradeLabel_1: UILabel!
+    @IBOutlet weak var lastSessionGradeLabel_2: UILabel!
+    @IBOutlet weak var lastSessionGradeLabel_3: UILabel!
+    @IBOutlet weak var lastSessionGradeLabel_4: UILabel!
+    @IBOutlet weak var lastSessionGradeLabel_5: UILabel!
+    @IBOutlet weak var lastSessionGradeLabel_6: UILabel!
+    @IBOutlet weak var lastSessionGradeLabel_7: UILabel!
+    @IBOutlet weak var lastSessionGradeLabel_8: UILabel!
+    @IBOutlet weak var lastSessionGradeLabel_9: UILabel!
+    @IBOutlet weak var lastSessionGradeLabel_10: UILabel!
+    @IBOutlet weak var lastSessionGradeLabel_11: UILabel!
+    @IBOutlet weak var lastSessionGradeLabel_12: UILabel!
+    
+    
+    @IBOutlet weak var lastSessionStatusLabel_1: UILabel!
+    @IBOutlet weak var lastSessionStatusLabel_2: UILabel!
+    @IBOutlet weak var lastSessionStatusLabel_3: UILabel!
+    @IBOutlet weak var lastSessionStatusLabel_4: UILabel!
+    @IBOutlet weak var lastSessionStatusLabel_5: UILabel!
+    @IBOutlet weak var lastSessionStatusLabel_6: UILabel!
+    @IBOutlet weak var lastSessionStatusLabel_7: UILabel!
+    @IBOutlet weak var lastSessionStatusLabel_8: UILabel!
+    @IBOutlet weak var lastSessionStatusLabel_9: UILabel!
+    @IBOutlet weak var lastSessionStatusLabel_10: UILabel!
+    @IBOutlet weak var lastSessionStatusLabel_11: UILabel!
+    @IBOutlet weak var lastSessionStatusLabel_12: UILabel!
+    
+    
+    
+    
+    
     
     
     
@@ -69,26 +114,14 @@ class ProfileViewController: UIViewController {
                 }
             }
         }
+        
+        // update last session
+        if let user = Auth.auth().currentUser {
+            updateLastSessionGrid(for: user.uid)
+        }
+
     }
     
-    func generateLastHalfYearData() -> [DataPoint] {
-        let grades: [Double] = [
-            1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8,
-            2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8,
-            1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8
-        ]
-
-        var data: [DataPoint] = []
-        let calendar = Calendar.current
-        let today = Date()
-
-        for i in 0..<24 {
-            if let date = calendar.date(byAdding: .day, value: -7 * (23 - i), to: today) {
-                data.append(DataPoint(date: date, grade: grades[i]))
-            }
-        }
-        return data
-    }
     
     
     func updateCurrentGradeLabelFromDatabase(for userId: String) {
@@ -224,6 +257,91 @@ class ProfileViewController: UIViewController {
                 completion(dataPoints)
             }
     }
+    
+    
+    func updateLastSessionGrid(for userId: String) {
+        let db = Firestore.firestore()
+        db.collection("sends")
+            .whereField("userId", isEqualTo: userId)
+            .order(by: "timestamp", descending: true)
+            .getDocuments { snapshot, error in
+                if let error = error {
+                    print("❌ Error: \(error)")
+                    return
+                }
+
+                let allSends = snapshot?.documents.compactMap { FeedSend(dict: $0.data()) } ?? []
+
+                guard let latestDate = allSends.first?.timestamp.dateValue() else { return }
+                let calendar = Calendar.current
+
+                let sameDaySends = allSends.filter {
+                    calendar.isDate($0.timestamp.dateValue(), inSameDayAs: latestDate)
+                }
+                
+                
+
+                let limited = Array(sameDaySends.prefix(12))
+                
+                
+                print("🧪 Last session sends (\(limited.count)):")
+
+                for (index, send) in limited.enumerated() {
+                    print("👉 [\(index)] Grade: \(send.grade), Status: \(send.status)")
+                }
+
+
+                // UI
+                let subViews = [
+                    self.lastSessionSubView_1, self.lastSessionSubView_2, self.lastSessionSubView_3,
+                    self.lastSessionSubView_4, self.lastSessionSubView_5, self.lastSessionSubView_6,
+                    self.lastSessionSubView_7, self.lastSessionSubView_8, self.lastSessionSubView_9,
+                    self.lastSessionSubView_10, self.lastSessionSubView_11, self.lastSessionSubView_12
+                ]
+
+                let gradeLabels = [
+                    self.lastSessionGradeLabel_1, self.lastSessionGradeLabel_2, self.lastSessionGradeLabel_3,
+                    self.lastSessionGradeLabel_4, self.lastSessionGradeLabel_5, self.lastSessionGradeLabel_6,
+                    self.lastSessionGradeLabel_7, self.lastSessionGradeLabel_8, self.lastSessionGradeLabel_9,
+                    self.lastSessionGradeLabel_10, self.lastSessionGradeLabel_11, self.lastSessionGradeLabel_12
+                ]
+
+                let statusLabels = [
+                    self.lastSessionStatusLabel_1, self.lastSessionStatusLabel_2, self.lastSessionStatusLabel_3,
+                    self.lastSessionStatusLabel_4, self.lastSessionStatusLabel_5, self.lastSessionStatusLabel_6,
+                    self.lastSessionStatusLabel_7, self.lastSessionStatusLabel_8, self.lastSessionStatusLabel_9,
+                    self.lastSessionStatusLabel_10, self.lastSessionStatusLabel_11, self.lastSessionStatusLabel_12
+                ]
+
+                DispatchQueue.main.async {
+                    for i in 0..<12 {
+                        if i < limited.count {
+                            let send = limited[i]
+                            subViews[i]?.isHidden = false
+                            gradeLabels[i]?.isHidden = false
+                            statusLabels[i]?.isHidden = false
+                            gradeLabels[i]?.text = send.grade.uppercased()
+
+                            switch send.status {
+                            case "Onsight", "Flash":
+                                statusLabels[i]?.text = "⚡️"
+                            case "Fail":
+                                statusLabels[i]?.text = "❌"
+                            default:
+                                statusLabels[i]?.text = "✅"
+                            }
+                        } else {
+                            gradeLabels[i]?.text = ""
+                            statusLabels[i]?.text = ""
+                            gradeLabels[i]?.isHidden = true
+                            statusLabels[i]?.isHidden = true
+                            subViews[i]?.isHidden = false
+                        }
+                    }
+                }
+            }
+    }
+
 
 
     
