@@ -17,6 +17,8 @@ struct FeedSend {
     let feeling: String
     let imageUrl: String
     let userId: String
+    let userName: String // New field: Will be email prefix for now
+    let userEmail: String // New field: user email (optional, not displayed)
     let timestamp: Timestamp
 
     // Combines color and grade into Color-V# format for Send Info Label
@@ -33,6 +35,8 @@ struct FeedSend {
         self.feeling = dict["feeling"] as? String ?? ""
         self.imageUrl = dict["imageUrl"] as? String ?? ""
         self.userId = dict["userId"] as? String ?? ""
+        self.userName = dict["userName"] as? String ?? ""
+        self.userEmail = dict["userEmail"] as? String ?? "unknown@example.com"
         self.timestamp = dict["timestamp"] as? Timestamp ?? Timestamp()
     }
 }
@@ -48,10 +52,25 @@ class FeedViewController: UIViewController, UITableViewDelegate, UITableViewData
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
+        print("🌀 FeedViewController viewDidLoad called")
+        
         tableView.delegate = self
         tableView.dataSource = self
         tableView.showsVerticalScrollIndicator = false
+        
+        // Add pull-to-refresh control
+        let refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action: #selector(refreshPulled), for: .valueChanged)
+        tableView.refreshControl = refreshControl
+        
+        // No need to call fetchData() here anymore
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        print("🌀 FeedViewController viewWillAppear called")
         
         fetchData()
     }
@@ -69,7 +88,10 @@ class FeedViewController: UIViewController, UITableViewDelegate, UITableViewData
 
                 // Map each document to a Send object
                 self.sends = snapshot?.documents.compactMap {
-                    FeedSend(dict: $0.data())
+                    let data = $0.data()
+                    let send = FeedSend(dict: data)
+                    print("📥 Fetched send with imageUrl: \(send.imageUrl)") // <<< 这里
+                    return send
                 } ?? []
 
                 // Refresh the table view on the main thread
@@ -94,8 +116,18 @@ class FeedViewController: UIViewController, UITableViewDelegate, UITableViewData
 
         let send = sends[indexPath.row] // Get the Send object for this row
 
-        // Set the name as "username"
-        cell.nameLabel.text = "Anon"
+        // Determine display name based on userName and fallback to email prefix if needed
+        let displayName: String
+        if send.userName.isEmpty {
+            // If userName is empty, fallback to email prefix (before "@")
+            displayName = send.userEmail.components(separatedBy: "@").first ?? "unknown"
+        } else {
+            // If userName is not empty, use it directly
+            displayName = send.userName
+        }
+
+        // Set the name label to the display name
+        cell.nameLabel.text = displayName
 
 
         // Set Send Info Label as "Color-V#" (example: "Red-V3")
@@ -134,14 +166,19 @@ class FeedViewController: UIViewController, UITableViewDelegate, UITableViewData
 
         // Load the send image from URL (if any)
         if let url = URL(string: send.imageUrl), !send.imageUrl.isEmpty {
+            print("🖼️ Loading image from URL: \(send.imageUrl)") // <<< check
             URLSession.shared.dataTask(with: url) { data, _, _ in
                 if let data = data {
                     DispatchQueue.main.async {
+                        print("✅ Image data loaded successfully!") // <<< check
                         cell.sendImageView.image = UIImage(data: data)
                     }
+                } else {
+                    print("❌ Failed to load image data.")
                 }
             }.resume()
         } else {
+            print("🖼️ No image URL, showing default photo.") // <<< 这里
             cell.sendImageView.image = UIImage(systemName: "photo")
         }
 
@@ -151,6 +188,14 @@ class FeedViewController: UIViewController, UITableViewDelegate, UITableViewData
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         
+    }
+    
+    // Called when user pulls to refresh the Feed
+    @objc func refreshPulled() {
+        print("🔄 User triggered pull-to-refresh")
+        fetchData()
+        // End the refreshing animation
+        tableView.refreshControl?.endRefreshing()
     }
 
 }

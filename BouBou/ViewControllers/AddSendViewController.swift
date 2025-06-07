@@ -68,8 +68,9 @@ class AddSendViewController: UIViewController,
                                 imageUrl: url,
                                 timestamp: timestamp)
 
-                // Save as draft: keep input, show alert, stay on page
+                // Save to "Me" only
                 self.saveSendToFirestore(send,
+                                         isShared: false, // ⭐️ Save → false
                                          shouldResetFields: false,
                                          shouldJumpToFeed: false,
                                          showAlert: true)
@@ -84,8 +85,9 @@ class AddSendViewController: UIViewController,
                             imageUrl: "",
                             timestamp: timestamp)
 
-            // Save as draft: keep input, show alert, stay on page
+            // Save to "Me" only
             self.saveSendToFirestore(send,
+                                     isShared: false, // ⭐️ Save → false
                                      shouldResetFields: false,
                                      shouldJumpToFeed: false,
                                      showAlert: true)
@@ -93,6 +95,7 @@ class AddSendViewController: UIViewController,
     }
     
     @IBAction func saveAndShareButtonTapped(_ sender: UIButton) {
+        // Grab all current values from the screen
         let color = colorLabel.text ?? "N/A"
         let grade = gradeLabel.text ?? "N/A"
         let status = statusLabel.text ?? "N/A"
@@ -114,8 +117,9 @@ class AddSendViewController: UIViewController,
                                 imageUrl: url,
                                 timestamp: timestamp)
 
-                // Share immediately: clear input, no alert, go to Feed
+                // Save to "World" (shared) → and "Me"
                 self.saveSendToFirestore(send,
+                                         isShared: true, // ⭐️ Save&Share → true
                                          shouldResetFields: true,
                                          shouldJumpToFeed: true,
                                          showAlert: false)
@@ -130,8 +134,9 @@ class AddSendViewController: UIViewController,
                             imageUrl: "",
                             timestamp: timestamp)
 
-            // Share immediately: clear input, no alert, go to Feed
+            // Save to "World" (shared) → and "Me"
             self.saveSendToFirestore(send,
+                                     isShared: true, // ⭐️ Save&Share → true ← ⭐️ 之前这里容易漏！
                                      shouldResetFields: true,
                                      shouldJumpToFeed: true,
                                      showAlert: false)
@@ -242,7 +247,7 @@ class AddSendViewController: UIViewController,
         let alert = UIAlertController(title: "Choose Grade", message: nil, preferredStyle: .alert)
 
         // Grades from V1 to V15
-        let grades = (1...15).map { "V\($0)" }
+        let grades = (1...12).map { "V\($0)" }
 
         // Add each grade as an option
         for grade in grades {
@@ -470,24 +475,37 @@ class AddSendViewController: UIViewController,
     ///   - shouldResetFields: whether to reset the input fields after saving
     ///   - shouldJumpToFeed: whether to switch to the Feed tab after saving
     ///   - showAlert: whether to display a confirmation alert
-    func saveSendToFirestore(_ send: Send, shouldResetFields: Bool, shouldJumpToFeed: Bool, showAlert: Bool) {
+    func saveSendToFirestore(_ send: Send, isShared: Bool, shouldResetFields: Bool, shouldJumpToFeed: Bool, showAlert: Bool){
         let db = Firestore.firestore()
 
         // Get current user ID
         let userID = Auth.auth().currentUser?.uid ?? "unknown"
+        // Get current user email
+        let userEmail = Auth.auth().currentUser?.email ?? "unknown@example.com"
+        // Extract user name as the part before "@" in email
+        let userName = userEmail.components(separatedBy: "@").first ?? "unknown"
 
         // Prepare dictionary for Firestore
         let sendData: [String: Any] = [
             "userId": userID,
+            "userName": userName,
+            "userEmail": userEmail,
             "color": send.color,
             "grade": send.grade,
             "status": send.status,
             "attempts": send.attempts,
             "feeling": send.feeling,
             "imageUrl": send.imageUrl,
-            "timestamp": Timestamp(date: send.timestamp)
+            "timestamp": Timestamp(date: send.timestamp),
+            "isShared": isShared // ⭐️ Critical field: true → World + Me; false → Me only
         ]
-
+        
+        // Log for debugging
+        print("📤 Saving send to Firestore with userName: \(userName), userEmail: \(userEmail), imageUrl: \(send.imageUrl)")
+        
+        //check
+        print("📤 Saving send to Firestore with imageUrl: \(send.imageUrl)")
+        
         // Save data to Firestore
         db.collection("sends").addDocument(data: sendData) { error in
             if let error = error {
