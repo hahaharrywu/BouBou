@@ -59,6 +59,24 @@ class LastSessionViewController: UIViewController {
                 }
             }
     }
+    
+    func summaryPhrase(for status: String, attempts: String) -> String {
+        switch status {
+        case "Onsight":
+            return "Onsight! Sent in 1 try."
+        case "Flash":
+            return "Flash! Sent in 1 try."
+        case "Send":
+            return "Sent in \(attempts) tries."
+        case "Projecting":
+            return "Projecting... \(attempts) tries so far."
+        case "Fail":
+            return "Didn't finish after \(attempts) tries."
+        default:
+            return ""
+        }
+    }
+
 
 
 
@@ -83,6 +101,8 @@ extension LastSessionViewController: UITableViewDelegate, UITableViewDataSource 
         cell.summaryLabel.text = "..."
         cell.feelingLabel.text = send.feeling
         cell.avatarImageView.image = UIImage(systemName: "person.circle")
+        cell.summaryLabel.text = summaryPhrase(for: send.status, attempts: send.attempts)
+
 
         if let url = URL(string: send.imageUrl), !send.imageUrl.isEmpty {
             URLSession.shared.dataTask(with: url) { data, _, _ in
