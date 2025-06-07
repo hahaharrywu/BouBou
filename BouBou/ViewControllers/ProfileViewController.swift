@@ -8,12 +8,16 @@
 import UIKit
 import SwiftUI
 import Charts
+import Firebase
+import FirebaseAuth
+
 
 class ProfileViewController: UIViewController {
 
     
     @IBOutlet weak var avatarImageView: UIImageView!
     @IBOutlet weak var chartView: UIView!
+    @IBOutlet weak var currentGradeLabel: UILabel!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -24,6 +28,12 @@ class ProfileViewController: UIViewController {
         if avatarImageView.image == nil {
                 avatarImageView.image = UIImage(systemName: "photo")
         }
+        
+        // update my current grade
+        if let user = Auth.auth().currentUser {
+            updateCurrentGradeLabelFromDatabase(for: user.uid)
+        }
+
         
         let data = generateLastHalfYearData()
         let swiftUIView = TrendChartView(data: data)
@@ -63,6 +73,52 @@ class ProfileViewController: UIViewController {
         }
         return data
     }
+    
+    
+    func updateCurrentGradeLabelFromDatabase(for userId: String) {
+        let db = Firestore.firestore()
+        
+        db.collection("sends")
+            .whereField("userId", isEqualTo: userId) // 只查当前用户
+            .getDocuments { snapshot, error in
+                if let error = error {
+                    print("❌ Failed to fetch sends: \(error.localizedDescription)")
+                    DispatchQueue.main.async {
+                        self.currentGradeLabel.text = "N/A"
+                    }
+                    return
+                }
+                
+                // Map documents to FeedSend
+                let sends: [FeedSend] = snapshot?.documents.compactMap { FeedSend(dict: $0.data()) } ?? []
+
+                // 提取有效的 Double grade（"v4" → 4.0）
+                let gradeValues: [Double] = sends.compactMap { send in
+                    let lower = send.grade.lowercased()
+                    if lower.hasPrefix("v") {
+                        let numberPart = lower.replacingOccurrences(of: "v", with: "")
+                        return Double(numberPart)
+                    }
+                    return nil
+                }
+
+                guard !gradeValues.isEmpty else {
+                    DispatchQueue.main.async {
+                        self.currentGradeLabel.text = "N/A"
+                    }
+                    return
+                }
+
+                // 计算平均 & 更新 UI
+                let average = gradeValues.reduce(0, +) / Double(gradeValues.count)
+                let rounded = Int(round(average))
+
+                DispatchQueue.main.async {
+                    self.currentGradeLabel.text = "V\(rounded)"
+                }
+            }
+    }
+
 
     
 
