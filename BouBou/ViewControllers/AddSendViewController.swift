@@ -65,12 +65,12 @@ class AddSendViewController: UIViewController,
                                 status: status,
                                 attempts: attempts,
                                 feeling: feeling,
-                                imageUrl: url,
-                                timestamp: timestamp)
+                                imageUrl: url, // or ""
+                                timestamp: timestamp,
+                                isShared: false) // Save 按钮
 
                 // Save to "Me" only
                 self.saveSendToFirestore(send,
-                                         isShared: false, // ⭐️ Save → false
                                          shouldResetFields: false,
                                          shouldJumpToFeed: false,
                                          showAlert: true)
@@ -83,11 +83,12 @@ class AddSendViewController: UIViewController,
                             attempts: attempts,
                             feeling: feeling,
                             imageUrl: "",
-                            timestamp: timestamp)
+                            timestamp: timestamp,
+                            isShared: false) // Save 按钮
+
 
             // Save to "Me" only
             self.saveSendToFirestore(send,
-                                     isShared: false, // ⭐️ Save → false
                                      shouldResetFields: false,
                                      shouldJumpToFeed: false,
                                      showAlert: true)
@@ -115,11 +116,11 @@ class AddSendViewController: UIViewController,
                                 attempts: attempts,
                                 feeling: feeling,
                                 imageUrl: url,
-                                timestamp: timestamp)
+                                timestamp: timestamp,
+                                isShared: true) // Save&Share 按钮
 
                 // Save to "World" (shared) → and "Me"
                 self.saveSendToFirestore(send,
-                                         isShared: true, // ⭐️ Save&Share → true
                                          shouldResetFields: true,
                                          shouldJumpToFeed: true,
                                          showAlert: false)
@@ -132,11 +133,12 @@ class AddSendViewController: UIViewController,
                             attempts: attempts,
                             feeling: feeling,
                             imageUrl: "",
-                            timestamp: timestamp)
+                            timestamp: timestamp,
+                            isShared: true) // Save&Share 按钮
+
 
             // Save to "World" (shared) → and "Me"
             self.saveSendToFirestore(send,
-                                     isShared: true, // ⭐️ Save&Share → true ← ⭐️ 之前这里容易漏！
                                      shouldResetFields: true,
                                      shouldJumpToFeed: true,
                                      showAlert: false)
@@ -475,7 +477,7 @@ class AddSendViewController: UIViewController,
     ///   - shouldResetFields: whether to reset the input fields after saving
     ///   - shouldJumpToFeed: whether to switch to the Feed tab after saving
     ///   - showAlert: whether to display a confirmation alert
-    func saveSendToFirestore(_ send: Send, isShared: Bool, shouldResetFields: Bool, shouldJumpToFeed: Bool, showAlert: Bool){
+    func saveSendToFirestore(_ send: Send, shouldResetFields: Bool, shouldJumpToFeed: Bool, showAlert: Bool){
         let db = Firestore.firestore()
 
         // Get current user ID
@@ -497,11 +499,11 @@ class AddSendViewController: UIViewController,
             "feeling": send.feeling,
             "imageUrl": send.imageUrl,
             "timestamp": Timestamp(date: send.timestamp),
-            "isShared": isShared // ⭐️ Critical field: true → World + Me; false → Me only
+            "isShared": send.isShared // ⭐️ Critical field: true → World + Me; false → Me only
         ]
         
         // Log for debugging
-        print("📤 Saving send to Firestore with userName: \(userName), userEmail: \(userEmail), imageUrl: \(send.imageUrl)")
+        print("📤 Saving send to Firestore with userName: \(userName), userEmail: \(userEmail), imageUrl: \(send.imageUrl), isShared: \(send.isShared)")
         
         //check
         print("📤 Saving send to Firestore with imageUrl: \(send.imageUrl)")
@@ -566,4 +568,7 @@ struct Send {
 
     // Timestamp of when the send was created
     var timestamp: Date
+    
+    // ⭐️ NEW FIELD → Whether this post is shared to World (Save&Share) or Me only (Save)
+    var isShared: Bool
 }

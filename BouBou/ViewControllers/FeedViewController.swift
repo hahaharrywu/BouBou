@@ -20,6 +20,7 @@ struct FeedSend {
     let userName: String // New field: Will be email prefix for now
     let userEmail: String // New field: user email (optional, not displayed)
     let timestamp: Timestamp
+    let isShared: Bool // ⭐️ NEW FIELD, from Firestore
 
     // Combines color and grade into Color-V# format for Send Info Label
     var colorGrade: String {
@@ -38,6 +39,7 @@ struct FeedSend {
         self.userName = dict["userName"] as? String ?? ""
         self.userEmail = dict["userEmail"] as? String ?? "unknown@example.com"
         self.timestamp = dict["timestamp"] as? Timestamp ?? Timestamp()
+        self.isShared = dict["isShared"] as? Bool ?? false
     }
 }
 
@@ -193,9 +195,13 @@ class FeedViewController: UIViewController, UITableViewDelegate, UITableViewData
     // Called when user pulls to refresh the Feed
     @objc func refreshPulled() {
         print("🔄 User triggered pull-to-refresh")
+        
+        // End refresh AFTER fetch finishes → 放进 DispatchQueue.main.async
         fetchData()
-        // End the refreshing animation
-        tableView.refreshControl?.endRefreshing()
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            self.tableView.refreshControl?.endRefreshing()
+        }
     }
 
 }
