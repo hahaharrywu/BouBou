@@ -28,7 +28,7 @@ struct TrendChartView: View {
             
             
             // y axis
-            RuleMark(x: .value("Start", data.first?.date ?? Date()))
+            RuleMark(x: .value("Start", data.map { $0.date }.min() ?? Date()))
                 .foregroundStyle(.white)
                 .lineStyle(StrokeStyle(lineWidth: 2))
 
