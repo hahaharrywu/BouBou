@@ -355,8 +355,8 @@
                                                         <constraint firstAttribute="height" constant="40" id="Occ-Zr-1iA"/>
                                                     </constraints>
                                                 </imageView>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Score" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="BFS-bz-OWm">
-                                                    <rect key="frame" x="340" y="25" width="48" height="20.333333333333329"/>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Score" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="BFS-bz-OWm">
+                                                    <rect key="frame" x="300" y="25" width="88" height="20.333333333333329"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <color key="textColor" red="0.83606690169999998" green="0.4381604791" blue="0.3471366763" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <nil key="highlightedColor"/>
@@ -387,7 +387,7 @@
                                                 <constraint firstItem="YWj-1J-654" firstAttribute="leading" secondItem="BFS-bz-OWm" secondAttribute="trailing" constant="2" id="1qX-7h-sfo"/>
                                                 <constraint firstItem="YWj-1J-654" firstAttribute="centerY" secondItem="AHu-0K-Go3" secondAttribute="centerY" id="AF8-rc-y8L"/>
                                                 <constraint firstItem="xkZ-Ah-dZq" firstAttribute="centerY" secondItem="AHu-0K-Go3" secondAttribute="centerY" id="Shx-mu-dfR"/>
-                                                <constraint firstItem="BFS-bz-OWm" firstAttribute="leading" secondItem="AHu-0K-Go3" secondAttribute="leadingMargin" constant="320" id="bx6-HI-XvN"/>
+                                                <constraint firstItem="BFS-bz-OWm" firstAttribute="leading" secondItem="AHu-0K-Go3" secondAttribute="leadingMargin" constant="280" id="bx6-HI-XvN"/>
                                                 <constraint firstItem="xkZ-Ah-dZq" firstAttribute="top" secondItem="AHu-0K-Go3" secondAttribute="top" constant="2" id="fzN-Yf-Q2D"/>
                                                 <constraint firstItem="BFS-bz-OWm" firstAttribute="centerY" secondItem="AHu-0K-Go3" secondAttribute="centerY" id="gPV-Iu-YvF"/>
                                                 <constraint firstAttribute="bottom" secondItem="xkZ-Ah-dZq" secondAttribute="bottom" constant="2" id="hEr-KX-aJu"/>
