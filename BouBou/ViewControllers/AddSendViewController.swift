@@ -152,8 +152,12 @@ class AddSendViewController: UIViewController,
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Set a default placeholder image
+        // Set default placeholder image (with no corner radius)
         sendImageView.image = UIImage(systemName: "photo")
+        sendImageView.contentMode = .scaleAspectFit
+        sendImageView.layer.cornerRadius = 0
+        sendImageView.layer.masksToBounds = false
+        sendImageView.clipsToBounds = false
 
         // Allow tapping anywhere to dismiss the keyboard
         setupKeyboardDismissRecognizer()
@@ -194,6 +198,7 @@ class AddSendViewController: UIViewController,
         // Set this view controller as the delegate so we can handle
         // actions like pressing return or responding to editing events
         feelingTextField.delegate = self
+        
     }
 
     // Set up gesture recognizer to dismiss keyboard when tapping outside
@@ -282,12 +287,12 @@ class AddSendViewController: UIViewController,
         let alert = UIAlertController(title: "Choose Status", message: nil, preferredStyle: .actionSheet)
 
         // Status options ordered by climbing difficulty level
+        // Removed "Fail" to encourage positive framing
         let statusOptions = [
             ("Onsight", "no info, first try"),
             ("Flash", "with info, first try"),
             ("Send", "finished after tries"),
-            ("Projecting", "still trying"),
-            ("Fail", "didn’t finish this time")
+            ("Projecting", "still trying")
         ]
 
         for (status, explanation) in statusOptions {
@@ -297,6 +302,21 @@ class AddSendViewController: UIViewController,
                 self.statusLabel.text = status
                 self.statusLabel.textAlignment = .center
                 self.statusLabel.textColor = .label // Turn from gray to black
+                
+                // Enforce attempts logic:
+                if status == "Onsight" || status == "Flash" {
+                    // Force attempts = 1
+                    self.attemptsLabel.text = "1"
+                    self.attemptsLabel.textAlignment = .center
+                    self.attemptsLabel.textColor = .label // Turn from gray to black
+                    // Disable attempts selection
+                    self.attemptsPopupStackView.isUserInteractionEnabled = false
+                    self.attemptsLabel.alpha = 0.5 // Visually dim the label
+                } else {
+                    // Enable attempts selection again
+                    self.attemptsPopupStackView.isUserInteractionEnabled = true
+                    self.attemptsLabel.alpha = 1.0
+                }
             }
             alert.addAction(action)
         }
@@ -310,6 +330,7 @@ class AddSendViewController: UIViewController,
 
         present(alert, animated: true)
     }
+
     
     // Called when the user taps on the Attempts Stack
     @objc func attemptsStackTapped() {
@@ -412,8 +433,14 @@ class AddSendViewController: UIViewController,
         // Try to get edited image first, then original
         if let image = info[.editedImage] as? UIImage ?? info[.originalImage] as? UIImage {
             sendImageView.image = image
+            
+            // Apply rounded corners only for user-uploaded image
+            sendImageView.layer.cornerRadius = 12
+            sendImageView.layer.masksToBounds = true
+            sendImageView.clipsToBounds = true
             sendImageView.contentMode = .scaleAspectFill
         }
+
 
         dismiss(animated: true, completion: nil)
     }
@@ -534,6 +561,11 @@ class AddSendViewController: UIViewController,
                     self.attemptsLabel.text = "Pop-up"
                     self.feelingTextField.text = ""
                     self.sendImageView.image = UIImage(systemName: "photo")
+                    self.sendImageView.contentMode = .scaleAspectFit
+                    self.sendImageView.layer.cornerRadius = 0
+                    self.sendImageView.layer.masksToBounds = false
+                    self.sendImageView.clipsToBounds = false
+
                     self.sendImageView.contentMode = .scaleAspectFit
                 }
 

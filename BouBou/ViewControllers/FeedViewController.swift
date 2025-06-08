@@ -229,11 +229,22 @@ class FeedViewController: UIViewController, UITableViewDelegate, UITableViewData
 
         // Load the send image from URL (if any)
         if let url = URL(string: send.imageUrl), !send.imageUrl.isEmpty {
+            
+            // 有用户上传 → 圆角 + scaleAspectFill
+            cell.sendImageView.layer.cornerRadius = 12
+            cell.sendImageView.layer.masksToBounds = true
+            cell.sendImageView.clipsToBounds = true
+            cell.sendImageView.contentMode = .scaleAspectFill
             print("🖼️ Loading image from URL: \(send.imageUrl)")
             loadImage(with: url, into: cell.sendImageView)
         } else {
+            // 没有上传 → SF Symbol 也保持圆角 + scaleAspectFit
             print("🖼️ No image URL, showing default photo.")
             cell.sendImageView.image = UIImage(systemName: "photo")
+            cell.sendImageView.layer.cornerRadius = 12
+            cell.sendImageView.layer.masksToBounds = true
+            cell.sendImageView.clipsToBounds = true
+            cell.sendImageView.contentMode = .scaleAspectFit
         }
 
         return cell
