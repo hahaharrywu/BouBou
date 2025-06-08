@@ -19,6 +19,9 @@ class FeedTableViewCell: UITableViewCell {
 
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
+        
+        // Add rounded corners to the feelingLabel
+        feelingLabel.layer.cornerRadius = 8
+        feelingLabel.layer.masksToBounds = true
     }
 }

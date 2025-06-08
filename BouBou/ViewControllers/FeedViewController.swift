@@ -7,6 +7,7 @@
 
 import UIKit
 import Firebase
+import FirebaseAuth
 
 // This struct represents one send record fetched from Firebase to display in the feed
 struct FeedSend {
@@ -47,7 +48,43 @@ struct FeedSend {
 
 class FeedViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
+    // MARK: - Feed Mode Enum (World or Me tab)
+    enum FeedMode {
+        case world    // World tab → show isShared == true posts
+        case me       // Me tab → show current user's posts (shared + unshared)
+    }
+
+    // Current selected feed mode (default is World)
+    var selectedMode: FeedMode = .world
+    
+    // The initial mode passed from AddSend screen.
+    // If set, FeedViewController will show this mode first (World or Me).
+    // After using this value, it will be cleared to avoid reapplying.
+    var initialMode: FeedMode? = nil
+    
+    // Simple image cache: URL string → UIImage
+    var imageCache = NSCache<NSString, UIImage>()
+
+    // Existing sends array
     var sends: [FeedSend] = []
+    
+    @IBOutlet weak var segmentedControl: UISegmentedControl!
+
+    
+    // MARK: - Segmented Control Action
+    @IBAction func segmentChanged(_ sender: UISegmentedControl) {
+        if sender.selectedSegmentIndex == 0 {
+            print("🌍 World selected")
+            selectedMode = .world
+        } else {
+            print("👤 Me selected")
+            selectedMode = .me
+        }
+        
+        // Reload data according to new selectedMode
+        fetchData()
+    }
+
     @IBOutlet weak var tableView: UITableView!
     
     //let testData = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
@@ -74,35 +111,64 @@ class FeedViewController: UIViewController, UITableViewDelegate, UITableViewData
         
         print("🌀 FeedViewController viewWillAppear called")
         
+        // If initialMode is set (from AddSend), apply it to selectedMode and segmented control
+        if let mode = initialMode {
+            selectedMode = mode
+            print("🎯 Applying initialMode = \(mode)")
+            segmentedControl.selectedSegmentIndex = (mode == .world) ? 0 : 1
+            print("🎯 SegmentedControl updated to \(mode == .world ? "World" : "Me")")
+            // Clear initialMode after applying it once
+            initialMode = nil
+        }
+        
+        // Now fetch data for the selected mode
         fetchData()
     }
     
     // Load send records from Firestore and update the table view
+    // MARK: - Fetch Data from Firestore based on selectedMode
     func fetchData() {
         let db = Firestore.firestore()
-        db.collection("sends")
-            .order(by: "timestamp", descending: true) // show latest sends first
-            .getDocuments { snapshot, error in
-                if let error = error {
-                    print("❌ Failed to load sends: \(error.localizedDescription)")
-                    return
-                }
 
-                // Map each document to a Send object
-                self.sends = snapshot?.documents.compactMap {
-                    let data = $0.data()
-                    let send = FeedSend(dict: data)
-                    print("📥 Fetched send with imageUrl: \(send.imageUrl)") // <<< 这里
-                    return send
-                } ?? []
+        // Start with base query sorted by timestamp
+        var query: Query = db.collection("sends")
+            .order(by: "timestamp", descending: true)
 
-                // Refresh the table view on the main thread
-                DispatchQueue.main.async {
-                    self.tableView.reloadData()
-                }
+        // Modify query depending on selectedMode (World or Me)
+        switch selectedMode {
+        case .world:
+            print("🌍 Fetching World posts...")
+            // World tab → show only posts where isShared == true
+            query = query.whereField("isShared", isEqualTo: true)
+
+        case .me:
+            print("👤 Fetching Me posts...")
+            // Me tab → show only posts from current user (isShared true/false both included)
+            let currentUserId = Auth.auth().currentUser?.uid ?? "unknown"
+            query = query.whereField("userId", isEqualTo: currentUserId)
+        }
+
+        // Execute the Firestore query
+        query.getDocuments { snapshot, error in
+            if let error = error {
+                print("❌ Failed to load sends: \(error.localizedDescription)")
+                return
             }
-    }
 
+            // Convert documents to FeedSend objects
+            self.sends = snapshot?.documents.compactMap {
+                let data = $0.data()
+                let send = FeedSend(dict: data)
+                print("📥 Fetched send with imageUrl: \(send.imageUrl), isShared: \(send.isShared)")
+                return send
+            } ?? []
+
+            // Reload the table view on the main thread
+            DispatchQueue.main.async {
+                self.tableView.reloadData()
+            }
+        }
+    }
     
     
     
@@ -131,16 +197,13 @@ class FeedViewController: UIViewController, UITableViewDelegate, UITableViewData
         // Set the name label to the display name
         cell.nameLabel.text = displayName
 
-
         // Set Send Info Label as "Color-V#" (example: "Red-V3")
         cell.sendInfoLabel.text = send.colorGrade
-
 
         // Set Summary Label as custom phrase based on status + attempts
         cell.summaryLabel.text = summaryPhrase(for: send.status, attempts: send.attempts)
         
         // Helper function to generate short summary phrase based on status and attempts
-    
         func summaryPhrase(for status: String, attempts: String) -> String {
             switch status {
             case "Onsight":
@@ -158,8 +221,6 @@ class FeedViewController: UIViewController, UITableViewDelegate, UITableViewData
             }
         }
 
-
-
         // Show the user's comment/feeling
         cell.feelingLabel.text = send.feeling
 
@@ -168,24 +229,16 @@ class FeedViewController: UIViewController, UITableViewDelegate, UITableViewData
 
         // Load the send image from URL (if any)
         if let url = URL(string: send.imageUrl), !send.imageUrl.isEmpty {
-            print("🖼️ Loading image from URL: \(send.imageUrl)") // <<< check
-            URLSession.shared.dataTask(with: url) { data, _, _ in
-                if let data = data {
-                    DispatchQueue.main.async {
-                        print("✅ Image data loaded successfully!") // <<< check
-                        cell.sendImageView.image = UIImage(data: data)
-                    }
-                } else {
-                    print("❌ Failed to load image data.")
-                }
-            }.resume()
+            print("🖼️ Loading image from URL: \(send.imageUrl)")
+            loadImage(with: url, into: cell.sendImageView)
         } else {
-            print("🖼️ No image URL, showing default photo.") // <<< 这里
+            print("🖼️ No image URL, showing default photo.")
             cell.sendImageView.image = UIImage(systemName: "photo")
         }
 
         return cell
     }
+    
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
@@ -202,6 +255,43 @@ class FeedViewController: UIViewController, UITableViewDelegate, UITableViewData
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             self.tableView.refreshControl?.endRefreshing()
         }
+    }
+    
+    // Helper function to load image with cache + retry logic
+    func loadImage(with url: URL, into imageView: UIImageView, retryCount: Int = 3) {
+        let urlString = url.absoluteString as NSString
+        
+        // First check cache
+        if let cachedImage = imageCache.object(forKey: urlString) {
+            print("⚡️ Using cached image!")
+            DispatchQueue.main.async {
+                imageView.image = cachedImage
+            }
+            return // No need to download again
+        }
+        
+        // Not cached → download
+        URLSession.shared.dataTask(with: url) { data, _, error in
+            if let data = data, let downloadedImage = UIImage(data: data) {
+                DispatchQueue.main.async {
+                    print("✅ Image data loaded successfully!")
+                    // Save to cache
+                    self.imageCache.setObject(downloadedImage, forKey: urlString)
+                    // Set image to view
+                    imageView.image = downloadedImage
+                }
+            } else if retryCount > 0 {
+                print("❌ Error loading image: \(error?.localizedDescription ?? "unknown error") → retrying... (\(retryCount) left)")
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    self.loadImage(with: url, into: imageView, retryCount: retryCount - 1)
+                }
+            } else {
+                print("❌ Failed to load image after retries.")
+                DispatchQueue.main.async {
+                    imageView.image = UIImage(systemName: "photo") // fallback image
+                }
+            }
+        }.resume()
     }
 
 }

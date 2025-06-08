@@ -71,9 +71,10 @@ class AddSendViewController: UIViewController,
 
                 // Save to "Me" only
                 self.saveSendToFirestore(send,
-                                         shouldResetFields: false,
-                                         shouldJumpToFeed: false,
-                                         showAlert: true)
+                                         shouldResetFields: true,   // ⭐️ 清空 AddSend 页面
+                                         shouldJumpToFeed: true,    // ⭐️ 跳转到 Feed
+                                         showAlert: false)          // ⭐️ 不弹出保存成功
+
             }
         } else {
             // No real image selected → just save with imageUrl = ""
@@ -89,9 +90,9 @@ class AddSendViewController: UIViewController,
 
             // Save to "Me" only
             self.saveSendToFirestore(send,
-                                     shouldResetFields: false,
-                                     shouldJumpToFeed: false,
-                                     showAlert: true)
+                                     shouldResetFields: true,   // ⭐️ 清空 AddSend 页面
+                                     shouldJumpToFeed: true,    // ⭐️ 跳转到 Feed
+                                     showAlert: false)          // ⭐️ 不弹出保存成功
         }
     }
     
@@ -536,8 +537,38 @@ class AddSendViewController: UIViewController,
                     self.sendImageView.contentMode = .scaleAspectFit
                 }
 
-                // Optionally jump to Feed tab (index 3)
+                // Optionally jump to Feed tab
                 if shouldJumpToFeed {
+                    if let tabBarController = self.tabBarController {
+                        print("✅ TabBarController found")
+
+                        if let feedNavController = tabBarController.viewControllers?[3] as? UINavigationController {
+                            print("✅ Feed NavController found")
+
+                            if let feedVC = feedNavController.topViewController as? FeedViewController {
+                                print("✅ FeedViewController found")
+                                
+                                feedVC.initialMode = send.isShared ? .world : .me
+                                print("👉 Setting initialMode to \(send.isShared ? "world" : "me")")
+                            } else {
+                                print("❌ FeedViewController not found in NavController")
+                            }
+
+                        } else {
+                            print("❌ NavigationController not found at index 3")
+                            
+                            // 试试看是不是直接 FeedViewController
+                            if let feedVC = tabBarController.viewControllers?[3] as? FeedViewController {
+                                print("✅ Direct FeedViewController found at index 3")
+                                feedVC.initialMode = send.isShared ? .world : .me
+                                print("👉 Setting initialMode to \(send.isShared ? "world" : "me")")
+                            }
+                        }
+                    } else {
+                        print("❌ TabBarController not found")
+                    }
+
+                    // 最后一定要切 tab 到 3
                     self.tabBarController?.selectedIndex = 3
                 }
             }
