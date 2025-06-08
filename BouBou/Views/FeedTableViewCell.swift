@@ -10,12 +10,22 @@ import UIKit
 class FeedTableViewCell: UITableViewCell {
 
     @IBOutlet weak var avatarImageView: UIImageView!
+    @IBOutlet weak var optionsButton: UIButton!
     @IBOutlet weak var sendImageView: UIImageView!
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var sendInfoLabel: UILabel!
     @IBOutlet weak var summaryLabel: UILabel!
     @IBOutlet weak var feelingLabel: UILabel!
+    @IBOutlet weak var dateLabel: UILabel!
+
     
+    @IBAction func optionsButtonTapped(_ sender: UIButton) {
+        print("🍔 Options button tapped")
+        optionsButtonAction?()
+    }
+
+    // Closure property to notify FeedViewController when options button is tapped
+    var optionsButtonAction: (() -> Void)?
 
     override func awakeFromNib() {
         super.awakeFromNib()

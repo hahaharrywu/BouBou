@@ -144,7 +144,7 @@ class ProfileViewController: UIViewController {
                 }
                 
                 // Map documents to FeedSend
-                let sends: [FeedSend] = snapshot?.documents.compactMap { FeedSend(dict: $0.data()) } ?? []
+                let sends: [FeedSend] = snapshot?.documents.compactMap { FeedSend(documentID: $0.documentID, dict: $0.data()) } ?? []
 
                 // abtract double grade（"v4" → 4.0）
                 let gradeValues: [Double] = sends.compactMap { send in
@@ -184,7 +184,7 @@ class ProfileViewController: UIViewController {
                     return
                 }
 
-                let sends = snapshot?.documents.compactMap { FeedSend(dict: $0.data()) } ?? []
+                let sends = snapshot?.documents.compactMap { FeedSend(documentID: $0.documentID, dict: $0.data()) } ?? []
 
                 // initial calculations：grade → count
                 var gradeCounts: [Int: Int] = [:]
@@ -226,7 +226,7 @@ class ProfileViewController: UIViewController {
                     return
                 }
 
-                let sends = snapshot?.documents.compactMap { FeedSend(dict: $0.data()) } ?? []
+                let sends = snapshot?.documents.compactMap { FeedSend(documentID: $0.documentID, dict: $0.data()) } ?? []
                 let calendar = Calendar.current
                 let today = Date()
 
@@ -275,7 +275,7 @@ class ProfileViewController: UIViewController {
                     return
                 }
 
-                let allSends = snapshot?.documents.compactMap { FeedSend(dict: $0.data()) } ?? []
+                let allSends = snapshot?.documents.compactMap { FeedSend(documentID: $0.documentID, dict: $0.data()) } ?? []
 
                 guard let latestDate = allSends.first?.timestamp.dateValue() else { return }
                 let calendar = Calendar.current

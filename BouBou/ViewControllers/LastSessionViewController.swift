@@ -48,7 +48,7 @@ class LastSessionViewController: UIViewController {
                 }
 
                 if let docs = snapshot?.documents {
-                    let all = docs.compactMap { FeedSend(dict: $0.data()) }
+                    let all = docs.compactMap { FeedSend(documentID: $0.documentID, dict: $0.data()) }
                     let todaySends = all.filter { calendar.isDate($0.timestamp.dateValue(), inSameDayAs: today) }
                     print("📅 Found \(todaySends.count) sends from today.")
                     

@@ -611,6 +611,8 @@ class AddSendViewController: UIViewController,
 // MARK: - Data model
 // A simple struct to represent a climbing send record
 struct Send {
+    var documentID: String? // Optional
+
     // The selected climbing color (e.g., Red, Blue)
     var color: String
 

@@ -11,6 +11,7 @@ import FirebaseAuth
 
 // This struct represents one send record fetched from Firebase to display in the feed
 struct FeedSend {
+    let documentID: String // 🔥 New: needed for delete/update
     let color: String
     let grade: String
     let status: String
@@ -29,7 +30,8 @@ struct FeedSend {
     }
     
     // Initialize from Firebase document dictionary
-    init(dict: [String: Any]) {
+    init(documentID: String, dict: [String: Any]) {
+        self.documentID = documentID
         self.color = dict["color"] as? String ?? "Color"
         self.grade = dict["grade"] as? String ?? "V?"
         self.status = dict["status"] as? String ?? ""
@@ -158,10 +160,11 @@ class FeedViewController: UIViewController, UITableViewDelegate, UITableViewData
             // Convert documents to FeedSend objects
             self.sends = snapshot?.documents.compactMap {
                 let data = $0.data()
-                let send = FeedSend(dict: data)
-                print("📥 Fetched send with imageUrl: \(send.imageUrl), isShared: \(send.isShared)")
+                let send = FeedSend(documentID: $0.documentID, dict: data)
+                print("📥 Fetched send with documentID: \(send.documentID), imageUrl: \(send.imageUrl), isShared: \(send.isShared)")
                 return send
             } ?? []
+
 
             // Reload the table view on the main thread
             DispatchQueue.main.async {
@@ -223,6 +226,26 @@ class FeedViewController: UIViewController, UITableViewDelegate, UITableViewData
 
         // Show the user's comment/feeling
         cell.feelingLabel.text = send.feeling
+        
+        //Convert Firestore timestamp to Date
+        let date = send.timestamp.dateValue()
+
+        //Create DateFormatter
+        let dateFormatter = DateFormatter()
+
+        //Use current locale and timezone
+        dateFormatter.locale = Locale.current
+        dateFormatter.timeZone = TimeZone.current
+
+        //Set desired display format → example: "2025-06-08 00:21"
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+
+        //Format the date to string
+        let dateString = dateFormatter.string(from: date)
+
+        //Set to dateLabel
+        cell.dateLabel.text = dateString
+
 
         // Set a default avatar image
         cell.avatarImageView.image = UIImage(systemName: "person.circle")
@@ -245,6 +268,70 @@ class FeedViewController: UIViewController, UITableViewDelegate, UITableViewData
             cell.sendImageView.layer.masksToBounds = true
             cell.sendImageView.clipsToBounds = true
             cell.sendImageView.contentMode = .scaleAspectFit
+        }
+        
+        cell.optionsButtonAction = { [weak self] in
+            guard let self = self else { return }
+            
+            // Get the send associated with this cell
+            let send = self.sends[indexPath.row]
+            print("🍔 Options tapped for send by \(send.userName), isShared = \(send.isShared)")
+            
+            // Create the options menu
+            let alert = UIAlertController(title: "Options", message: nil, preferredStyle: .actionSheet)
+            
+            // Always add Delete option
+            alert.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: { _ in
+                print("🗑️ User chose to delete the send")
+                
+                let db = Firestore.firestore()
+                db.collection("sends").document(send.documentID).delete { error in
+                    if let error = error {
+                        print("❌ Failed to delete send: \(error.localizedDescription)")
+                    } else {
+                        print("✅ Send deleted successfully")
+                        self.fetchData() // Reload after delete
+                    }
+                }
+            }))
+            
+            // Add different options based on current mode
+            switch self.selectedMode {
+            case .world:
+                alert.addAction(UIAlertAction(title: "Set as Private", style: .default, handler: { _ in
+                    print("🔒 User chose to set as private")
+                    
+                    let db = Firestore.firestore()
+                    db.collection("sends").document(send.documentID).updateData(["isShared": false]) { error in
+                        if let error = error {
+                            print("❌ Failed to set send as private: \(error.localizedDescription)")
+                        } else {
+                            print("✅ Send set as private")
+                            self.fetchData()
+                        }
+                    }
+                }))
+                
+            case .me:
+                alert.addAction(UIAlertAction(title: "Publish to World", style: .default, handler: { _ in
+                    print("🌍 User chose to publish to world")
+                    let db = Firestore.firestore()
+                    db.collection("sends").document(send.documentID).updateData(["isShared": true]) { error in
+                        if let error = error {
+                            print("❌ Failed to publish send: \(error.localizedDescription)")
+                        } else {
+                            print("✅ Send published to world")
+                            self.fetchData()
+                        }
+                    }
+                }))
+            }
+            
+            // Add Cancel button
+            alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+            
+            // Present the alert
+            self.present(alert, animated: true, completion: nil)
         }
 
         return cell
