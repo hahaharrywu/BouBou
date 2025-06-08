@@ -29,15 +29,16 @@ class LastSessionViewController: UIViewController {
 
     
     func fetchData() {
+        // Ensure the user is logged in
         guard let currentUser = Auth.auth().currentUser else {
             print("❌ No current user.")
             return
         }
 
-        let calendar = Calendar.current
-        let today = Date()
-
         let db = Firestore.firestore()
+        let calendar = Calendar.current
+
+        // Query sends for this user, ordered by newest first
         db.collection("sends")
             .whereField("userId", isEqualTo: currentUser.uid)
             .order(by: "timestamp", descending: true)
@@ -47,18 +48,33 @@ class LastSessionViewController: UIViewController {
                     return
                 }
 
-                if let docs = snapshot?.documents {
-                    let all = docs.compactMap { FeedSend(documentID: $0.documentID, dict: $0.data()) }
-                    let todaySends = all.filter { calendar.isDate($0.timestamp.dateValue(), inSameDayAs: today) }
-                    print("📅 Found \(todaySends.count) sends from today.")
-                    
-                    DispatchQueue.main.async {
-                        self.sends = todaySends
-                        self.tableView.reloadData()
-                    }
+                // Convert Firestore documents to FeedSend models
+                guard let docs = snapshot?.documents else { return }
+                let allSends = docs.compactMap {
+                    FeedSend(documentID: $0.documentID, dict: $0.data())
+                }
+
+                // Find the date of the most recent send
+                guard let latestDate = allSends.first?.timestamp.dateValue() else {
+                    print("📭 No sends found.")
+                    return
+                }
+
+                // Filter all sends from the same day as the latest send
+                let sameDaySends = allSends.filter {
+                    calendar.isDate($0.timestamp.dateValue(), inSameDayAs: latestDate)
+                }
+
+                print("📅 Found \(sameDaySends.count) sends from the most recent session.")
+
+                // Update UI on main thread
+                DispatchQueue.main.async {
+                    self.sends = sameDaySends
+                    self.tableView.reloadData()
                 }
             }
     }
+
     
     func summaryPhrase(for status: String, attempts: String) -> String {
         switch status {
