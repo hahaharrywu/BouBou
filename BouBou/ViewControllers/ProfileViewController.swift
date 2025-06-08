@@ -122,10 +122,22 @@ class ProfileViewController: UIViewController {
             updateLastSessionGrid(for: user.uid)
         }
         
+        // last session tap
         let tap = UITapGestureRecognizer(target: self, action: #selector(showLastSession))
         lastSessionContainerView.addGestureRecognizer(tap)
         lastSessionContainerView.isUserInteractionEnabled = true
+        
+        // avatar tap
+        let avatarTap = UITapGestureRecognizer(target: self, action: #selector(avatarTapped))
+        avatarImageView.addGestureRecognizer(avatarTap)
+        avatarImageView.isUserInteractionEnabled = true
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: false)
+    }
+
     
     
     
@@ -381,10 +393,14 @@ class ProfileViewController: UIViewController {
     @objc func showLastSession() {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         if let vc = storyboard.instantiateViewController(withIdentifier: "LastSessionViewController") as? LastSessionViewController {
-            vc.modalPresentationStyle = .formSheet // 或 .fullScreen, .pageSheet
+            vc.modalPresentationStyle = .formSheet // OR .fullScreen, .pageSheet
             self.present(vc, animated: true)
         }
     }
-
-
+    
+    @objc func avatarTapped() {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let vc = storyboard.instantiateViewController(withIdentifier: "SettingsViewController")
+        self.navigationController?.pushViewController(vc, animated: true)
+    }
 }
