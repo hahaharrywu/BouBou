@@ -267,6 +267,21 @@ class FeedViewController: UIViewController, UITableViewDelegate, UITableViewData
 
         //Set to dateLabel
         cell.dateLabel.text = dateString
+        
+        
+        // Set isSharedLabel (only show in Me tab)
+        if selectedMode == .me {
+            // Me tab → show label and update text based on isShared
+            cell.isSharedLabel.isHidden = false
+            if send.isShared {
+                cell.isSharedLabel.text = "Public"
+            } else {
+                cell.isSharedLabel.text = "Private"
+            }
+        } else {
+            // World tab → hide isSharedLabel
+            cell.isSharedLabel.isHidden = true
+        }
 
 
         // Avatar image load from user profile
@@ -330,60 +345,71 @@ class FeedViewController: UIViewController, UITableViewDelegate, UITableViewData
             // Create the options menu
             let alert = UIAlertController(title: "Options", message: nil, preferredStyle: .actionSheet)
             
-            // Always add Delete option
-            alert.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: { _ in
-                print("🗑️ User chose to delete the send")
-                
-                let db = Firestore.firestore()
-                db.collection("sends").document(send.documentID).delete { error in
-                    if let error = error {
-                        print("❌ Failed to delete send: \(error.localizedDescription)")
-                    } else {
-                        print("✅ Send deleted successfully")
-                        self.fetchData() // Reload after delete
-                    }
+            // Only add options for Me tab → World tab optionsButton 已经是 hidden，永远不会弹出
+            if self.selectedMode == .me {
+                // 🌟 Add action based on isShared status
+                if send.isShared {
+                    // 当前是 public → 可以改成 private
+                    alert.addAction(UIAlertAction(title: "Set as Private 🔒", style: .default, handler: { _ in
+                        print("🔒 User chose to set as private")
+                        
+                        let db = Firestore.firestore()
+                        db.collection("sends").document(send.documentID).updateData(["isShared": false]) { error in
+                            if let error = error {
+                                print("❌ Failed to set send as private: \(error.localizedDescription)")
+                            } else {
+                                print("✅ Send set as private")
+                                self.fetchData() // Reload after update
+                            }
+                        }
+                    }))
+                } else {
+                    // 当前是 private → 可以改成 public
+                    alert.addAction(UIAlertAction(title: "Publish to World 🌍", style: .default, handler: { _ in
+                        print("🌍 User chose to publish to world")
+                        
+                        let db = Firestore.firestore()
+                        db.collection("sends").document(send.documentID).updateData(["isShared": true]) { error in
+                            if let error = error {
+                                print("❌ Failed to publish send: \(error.localizedDescription)")
+                            } else {
+                                print("✅ Send published to world")
+                                self.fetchData()
+                            }
+                        }
+                    }))
                 }
-            }))
-            
-            // Add different options based on current mode
-            switch self.selectedMode {
-            case .world:
-                alert.addAction(UIAlertAction(title: "Set as Private", style: .default, handler: { _ in
-                    print("🔒 User chose to set as private")
+                
+                // Always add Delete option (Me tab only)
+                alert.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: { _ in
+                    print("🗑️ User chose to delete the send")
                     
                     let db = Firestore.firestore()
-                    db.collection("sends").document(send.documentID).updateData(["isShared": false]) { error in
+                    db.collection("sends").document(send.documentID).delete { error in
                         if let error = error {
-                            print("❌ Failed to set send as private: \(error.localizedDescription)")
+                            print("❌ Failed to delete send: \(error.localizedDescription)")
                         } else {
-                            print("✅ Send set as private")
-                            self.fetchData()
-                        }
-                    }
-                }))
-                
-            case .me:
-                alert.addAction(UIAlertAction(title: "Publish to World", style: .default, handler: { _ in
-                    print("🌍 User chose to publish to world")
-                    let db = Firestore.firestore()
-                    db.collection("sends").document(send.documentID).updateData(["isShared": true]) { error in
-                        if let error = error {
-                            print("❌ Failed to publish send: \(error.localizedDescription)")
-                        } else {
-                            print("✅ Send published to world")
+                            print("✅ Send deleted successfully")
                             self.fetchData()
                         }
                     }
                 }))
             }
             
-            // Add Cancel button
+            // Add Cancel button (both tabs)
             alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
             
             // Present the alert
             self.present(alert, animated: true, completion: nil)
         }
-
+        
+        // World → hide options button
+        if selectedMode == .world {
+            cell.optionsButton.isHidden = true
+        } else {
+            // Me → show options button
+            cell.optionsButton.isHidden = false
+        }
         return cell
     }
     
@@ -392,6 +418,7 @@ class FeedViewController: UIViewController, UITableViewDelegate, UITableViewData
         tableView.deselectRow(at: indexPath, animated: true)
         
     }
+    
     
     // Called when user pulls to refresh the Feed
     @objc func refreshPulled() {
