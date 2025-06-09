@@ -260,6 +260,37 @@ class ChatViewController: UIViewController {
         present(alert, animated: true)
     }
     
+    
+    /*delete search UserByID and searchUserByUsername and uncomment this function if we want only searchbyEmail (BEEM)
+     
+    private func searchUserByEmail(_ email: String) {
+        db.collection("users")
+            .whereField("email", isEqualTo: email.lowercased())
+            .getDocuments { [weak self] snapshot, error in
+                if let error = error {
+                    print("Error searching user: \(error)")
+                    self?.showAlert(message: "Error searching for user")
+                    return
+                }
+
+                guard let document = snapshot?.documents.first else {
+                    self?.showAlert(message: "User not found")
+                    return
+                }
+
+                let data = document.data()
+                let user = User(
+                    id: document.documentID,
+                    email: data["email"] as? String ?? "",
+                    username: data["customUserName"] as? String ?? data["username"] as? String ?? "",
+                    profileImageURL: data["avatarUrl"] as? String ?? data["profileImageURL"] as? String
+                )
+
+                self?.handleUserFound(user)
+            }
+    }*/
+    
+    
     private func searchUserByID(_ userID: String) {
         db.collection("users").document(userID).getDocument { [weak self] document, error in
             if let error = error {
@@ -326,7 +357,28 @@ class ChatViewController: UIViewController {
         
         let actionSheet = UIAlertController(title: user.username, message: "User ID: \(user.id)", preferredStyle: .actionSheet)
         let sendRequestAction = UIAlertAction(title: "Send Friend Request", style: .default) { [weak self] _ in
-            self?.sendFriendRequest(to: user.id)
+            //self?.sendFriendRequest(to: user.id)  - can delete the chunk below and uncomment this (BEEM)
+            self?.db.collection("chats")
+                    .whereField("participants", arrayContains: currentUserID)
+                    .getDocuments { [weak self] snapshot, error in
+                        if let error = error {
+                            print("Error checking existing chats: \(error)")
+                            self?.showAlert(message: "Failed to check existing chats.")
+                            return
+                        }
+
+                        let chatExists = snapshot?.documents.contains(where: { doc in
+                            let participants = doc.data()["participants"] as? [String] ?? []
+                            return participants.contains(user.id)
+                        }) ?? false
+
+                        if chatExists {
+                            self?.showAlert(message: "\(user.username) is already in your chat list.")
+                        } else {
+                            self?.createChatBetweenFriends(userID1: currentUserID, userID2: user.id)
+                            self?.showAlert(message: "\(user.username) has been added to your chat.")
+                        }
+                    }
         }
         
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
@@ -507,6 +559,7 @@ class ChatTableViewCell: UITableViewCell {
             lastMessageLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
             lastMessageLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 4),
             lastMessageLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor),
+            lastMessageLabel.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor, constant: -12),//(BEEM)
             
             timeLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             timeLabel.centerYAnchor.constraint(equalTo: nameLabel.centerYAnchor)
