@@ -7,12 +7,16 @@
 
 import UIKit
 
-class FriendsViewController: UIViewController {
+class FriendsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
+    @IBOutlet weak var tableView: UITableView!
+    
+    var friends: [Friend] = []
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
+        tableView.delegate = self
+        tableView.dataSource = self
     }
     
     @IBAction func didTapRequestsButton(_ sender: UIBarButtonItem) {
@@ -20,14 +24,31 @@ class FriendsViewController: UIViewController {
     }
     
 
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return friends.count
     }
-    */
 
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let friend = friends[indexPath.row]
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "FriendCell", for: indexPath) as? FriendTableViewCell else {
+            return UITableViewCell()
+        }
+
+        cell.nameLabel.text = friend.userName
+        cell.commentLabel.text = friend.comment
+        cell.avatarImageView.image = UIImage(named: "Avatar_Cat")
+
+        return cell
+    }
+
+}
+
+
+
+
+
+struct Friend {
+    let userName: String
+    let comment: String
+    let avatarUrl: String
 }
