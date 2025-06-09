@@ -12,6 +12,9 @@ import FirebaseAuth
 class LastSessionViewController: UIViewController {
     
     @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var dateLabel: UILabel!
+    
+    
 
     var sends: [FeedSend] = []
 
@@ -67,11 +70,19 @@ class LastSessionViewController: UIViewController {
 
                 print("📅 Found \(sameDaySends.count) sends from the most recent session.")
 
-                // Update UI on main thread
+                // Update UI on main thread and date
                 DispatchQueue.main.async {
                     self.sends = sameDaySends
                     self.tableView.reloadData()
+
+                    // Format the date and set it on the label
+                    let formatter = DateFormatter()
+                    formatter.dateStyle = .long // Example: June 8, 2025
+                    formatter.timeStyle = .none
+//                    formatter.dateFormat = "MM-dd-yyyy"
+                    self.dateLabel.text = "on \(formatter.string(from: latestDate))"
                 }
+
             }
     }
 

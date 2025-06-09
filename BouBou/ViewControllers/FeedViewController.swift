@@ -238,7 +238,7 @@ class FeedViewController: UIViewController, UITableViewDelegate, UITableViewData
         dateFormatter.timeZone = TimeZone.current
 
         //Set desired display format → example: "2025-06-08 00:21"
-        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+        dateFormatter.dateFormat = "MM-dd-yyyy HH:mm"
 
         //Format the date to string
         let dateString = dateFormatter.string(from: date)
