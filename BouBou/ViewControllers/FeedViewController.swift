@@ -317,21 +317,11 @@ class FeedViewController: UIViewController, UITableViewDelegate, UITableViewData
 
         // Load the send image from URL (if any)
         if let url = URL(string: send.imageUrl), !send.imageUrl.isEmpty {
-            
-            // 有用户上传 → 圆角 + scaleAspectFill
-            cell.sendImageView.layer.cornerRadius = 12
-            cell.sendImageView.layer.masksToBounds = true
-            cell.sendImageView.clipsToBounds = true
             cell.sendImageView.contentMode = .scaleAspectFill
             print("🖼️ Loading image from URL: \(send.imageUrl)")
             loadImage(with: url, into: cell.sendImageView)
         } else {
-            // 没有上传 → SF Symbol 也保持圆角 + scaleAspectFit
             print("🖼️ No image URL, showing default photo.")
-            cell.sendImageView.image = UIImage(systemName: "photo")
-            cell.sendImageView.layer.cornerRadius = 12
-            cell.sendImageView.layer.masksToBounds = true
-            cell.sendImageView.clipsToBounds = true
             cell.sendImageView.contentMode = .scaleAspectFit
         }
         
@@ -438,43 +428,40 @@ class FeedViewController: UIViewController, UITableViewDelegate, UITableViewData
     // Helper function to load image with cache + retry logic
     func loadImage(with url: URL, into imageView: UIImageView, retryCount: Int = 3) {
         let urlString = url.absoluteString as NSString
-        
+
         // First check cache
         if let cachedImage = imageCache.object(forKey: urlString) {
             print("⚡️ Using cached image!")
             DispatchQueue.main.async {
                 imageView.image = cachedImage
             }
-            return // No need to download again
+            return
         }
-        
+
         // Not cached → download
         URLSession.shared.dataTask(with: url) { data, _, error in
             if let data = data, let downloadedImage = UIImage(data: data) {
                 DispatchQueue.main.async {
                     print("✅ Image data loaded successfully!")
-                    // Save to cache
                     self.imageCache.setObject(downloadedImage, forKey: urlString)
-                    // Set image to view
                     imageView.image = downloadedImage
                     
-                    imageView.layer.cornerRadius = imageView.frame.height / 2
-                    imageView.clipsToBounds = true
-                    imageView.layer.masksToBounds = true
-
+                    imageView.setNeedsLayout()
+                    imageView.layoutIfNeeded()
                 }
             } else if retryCount > 0 {
-                print("❌ Error loading image: \(error?.localizedDescription ?? "unknown error") → retrying... (\(retryCount) left)")
+                print("❌ Error loading image → retrying... (\(retryCount) left)")
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     self.loadImage(with: url, into: imageView, retryCount: retryCount - 1)
                 }
             } else {
                 print("❌ Failed to load image after retries.")
                 DispatchQueue.main.async {
-                    imageView.image = UIImage(systemName: "photo") // fallback image
+                    imageView.image = UIImage(systemName: "photo")
                 }
             }
         }.resume()
     }
+
 
 }

@@ -35,20 +35,19 @@ class FeedTableViewCell: UITableViewCell {
         // Add rounded corners to the feelingLabel
         feelingLabel.layer.cornerRadius = 8
         feelingLabel.layer.masksToBounds = true
-        
-        // ⭐️ Add rounded corners to sendImageView (container stays rounded always)
-        sendImageView.layer.cornerRadius = 12
-        sendImageView.layer.masksToBounds = true
-        sendImageView.clipsToBounds = true
-        // 不设置 contentMode，这个交给 cellForRowAt 里动态设置（填图片 or SF Symbol）
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
 
+        // avatar round corner
+        avatarImageView.contentMode = .scaleAspectFill
         avatarImageView.layer.cornerRadius = avatarImageView.frame.height / 2
         avatarImageView.clipsToBounds = true
-        avatarImageView.layer.masksToBounds = true
+        
+        // send image corner
+        sendImageView.contentMode = .scaleAspectFill
+        sendImageView.layer.cornerRadius = 12
+        sendImageView.clipsToBounds = true
     }
-
 }

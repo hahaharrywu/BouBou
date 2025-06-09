@@ -70,8 +70,6 @@ class FriendsViewController: UIViewController, UITableViewDelegate, UITableViewD
 
         // avatar
         cell.avatarImageView.image = UIImage(named: "Avatar_Cat")
-        cell.avatarImageView.layer.cornerRadius = cell.avatarImageView.frame.height / 2
-        cell.avatarImageView.clipsToBounds = true
 
         // head shot
         if let url = URL(string: friend.avatarUrl), !friend.avatarUrl.isEmpty {
@@ -79,8 +77,6 @@ class FriendsViewController: UIViewController, UITableViewDelegate, UITableViewD
                 if let data = data, let image = UIImage(data: data) {
                     DispatchQueue.main.async {
                         cell.avatarImageView.image = image
-                        cell.avatarImageView.layer.cornerRadius = cell.avatarImageView.frame.height / 2
-                        cell.avatarImageView.clipsToBounds = true
                     }
                 }
             }.resume()

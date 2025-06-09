@@ -18,4 +18,13 @@ class FriendTableViewCell: UITableViewCell {
     @IBAction func optionsButtonTapped(_ sender: UIButton) {
         optionsButtonAction?()
     }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        // avatar round corner
+        avatarImageView.contentMode = .scaleAspectFill
+        avatarImageView.layer.cornerRadius = avatarImageView.frame.height / 2
+        avatarImageView.clipsToBounds = true
+    }
 }
