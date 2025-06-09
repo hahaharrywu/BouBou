@@ -1,3 +1,10 @@
+//
+//  AddSendViewController.swift
+//  BouBou
+//
+//  Created by Hongrui Wu  on 5/30/25.
+//
+
 import UIKit
 import Firebase
 import FirebaseStorage
@@ -46,6 +53,11 @@ class AddSendViewController: UIViewController,
     
     /// Called when user taps the Save button
     @IBAction func saveButtonTapped(_ sender: UIButton) {
+        
+        // 🚩 Validate inputs first
+        if validateInputs() == false {
+            return
+        }
         // Grab all current values from the screen
         let color = colorLabel.text ?? "N/A"
         let grade = gradeLabel.text ?? "N/A"
@@ -97,6 +109,12 @@ class AddSendViewController: UIViewController,
     }
     
     @IBAction func saveAndShareButtonTapped(_ sender: UIButton) {
+
+        // 🚩 Validate inputs first
+        if validateInputs() == false {
+            return
+        }
+        
         // Grab all current values from the screen
         let color = colorLabel.text ?? "N/A"
         let grade = gradeLabel.text ?? "N/A"
@@ -286,59 +304,85 @@ class AddSendViewController: UIViewController,
     @objc func statusStackTapped() {
         let alert = UIAlertController(title: "Choose Status", message: nil, preferredStyle: .actionSheet)
 
-        // Status options ordered by climbing difficulty level
-        // Removed "Fail" to encourage positive framing
+        // 原始 options
         let statusOptions = [
-            ("Onsight", "no info, first try"),
-            ("Flash", "with info, first try"),
-            ("Send", "finished after tries"),
-            ("Projecting", "still trying")
+            "Onsight (no info, first try)",
+            "Flash (with info, first try)",
+            "Send (finished after tries)",
+            "Projecting (still trying)"
         ]
 
-        for (status, explanation) in statusOptions {
-            let title = "\(status) (\(explanation))"
-            let action = UIAlertAction(title: title, style: .default) { _ in
-                // Update label with chosen status only (no explanation)
-                self.statusLabel.text = status
-                self.statusLabel.textAlignment = .center
-                self.statusLabel.textColor = .black // Turn from gray to black
-                
-                // Enforce attempts logic:
-                if status == "Onsight" || status == "Flash" {
-                    // Force attempts = 1
-                    self.attemptsLabel.text = "1"
-                    self.attemptsLabel.textAlignment = .center
-                    self.attemptsLabel.textColor = .black // Turn from gray to black
-                    // Disable attempts selection
-                    self.attemptsPopupStackView.isUserInteractionEnabled = false
-                    self.attemptsLabel.alpha = 0.5 // Visually dim the label
-                } else {
-                    // Enable attempts selection again
-                    self.attemptsPopupStackView.isUserInteractionEnabled = true
-                    self.attemptsLabel.alpha = 1.0
+        // 映射表，对应要显示的关键词
+        let statusKeywords = [
+            "Onsight (no info, first try)": "Onsight",
+            "Flash (with info, first try)": "Flash",
+            "Send (finished after tries)": "Send",
+            "Projecting (still trying)": "Projecting"
+        ]
+
+        for option in statusOptions {
+            let action = UIAlertAction(title: option, style: .default) { _ in
+                // 🌟 显示关键词
+                if let keyword = statusKeywords[option] {
+                    self.statusLabel.text = keyword
+                    self.statusLabel.textAlignment = .center
+                    self.statusLabel.textColor = UIColor(named: "PrimaryTextColor") ?? .black
+
+                    // ⭐️ 自动同步 attemptsLabel ⭐️
+                    if keyword == "Onsight" || keyword == "Flash" {
+                        // 固定 1
+                        self.attemptsLabel.text = "1"
+                        self.attemptsLabel.textAlignment = .center
+                        self.attemptsLabel.textColor = UIColor(named: "PrimaryTextColor") ?? .black
+                    } else if keyword == "Send" || keyword == "Projecting" {
+                        // 如果当前 attemptsLabel 是 "1"，改成 "2"，但不锁死
+                        if self.attemptsLabel.text == "1" || self.attemptsLabel.text == nil || self.attemptsLabel.text == "" {
+                            self.attemptsLabel.text = "2"
+                            self.attemptsLabel.textAlignment = .center
+                            self.attemptsLabel.textColor = UIColor(named: "PrimaryTextColor") ?? .black
+                        }
+                    }
                 }
             }
             alert.addAction(action)
         }
 
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        // Cancel option
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
 
+        // iPad fix
         if let popover = alert.popoverPresentationController {
             popover.sourceView = self.view
             popover.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
         }
 
-        present(alert, animated: true)
+        // Present the dropdown-style alert
+        present(alert, animated: true, completion: nil)
     }
+
 
     
     // Called when the user taps on the Attempts Stack
     @objc func attemptsStackTapped() {
+        // 检查当前 Status 是什么
+        let currentStatus = statusLabel.text ?? ""
+
         let alert = UIAlertController(title: "Choose Attempts", message: nil, preferredStyle: .actionSheet)
 
-        // Simple options
-        let attemptOptions = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "10+"]
+        var attemptOptions: [String] = []
 
+        if currentStatus.contains("Onsight") || currentStatus.contains("Flash") {
+            // 如果是 Onsight / Flash，Attempts 固定为 1
+            attemptOptions = ["1"]
+        } else if currentStatus.contains("Send") || currentStatus.contains("Projecting") {
+            // 如果是 Send / Projecting，Attempts 从 2 开始
+            attemptOptions = (2...10).map { "\($0)" } + ["10+"]
+        } else {
+            // 兜底：如果 Status 没选，默认全选项
+            attemptOptions = (1...10).map { "\($0)" } + ["10+"]
+        }
+
+        // Add each attempt as an option
         for option in attemptOptions {
             let action = UIAlertAction(title: option, style: .default) { _ in
                 if option == "10+" {
@@ -346,21 +390,25 @@ class AddSendViewController: UIViewController,
                 } else {
                     self.attemptsLabel.text = option
                     self.attemptsLabel.textAlignment = .center
-                    self.attemptsLabel.textColor = .black // Turn from gray to black
+                    self.attemptsLabel.textColor = UIColor(named: "PrimaryTextColor") ?? .black
                 }
             }
             alert.addAction(action)
         }
 
+        // Cancel option
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
 
+        // iPad fix
         if let popover = alert.popoverPresentationController {
             popover.sourceView = self.view
             popover.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
         }
 
+        // Present the dropdown-style alert
         present(alert, animated: true, completion: nil)
     }
+
     
     // Show a prompt to let user enter their own attempt count
     func showCustomAttemptInput() {
@@ -498,6 +546,43 @@ class AddSendViewController: UIViewController,
             }
         }
     }
+    
+    // Validate required fields and show an alert if missing
+    func validateInputs() -> Bool {
+        var missingFields: [String] = []
+
+        // Check each required field
+        if colorLabel.text == nil || colorLabel.text == "Color" {
+            missingFields.append("Color")
+        }
+
+        if gradeLabel.text == nil || gradeLabel.text == "V#" {
+            missingFields.append("Grade")
+        }
+
+        if statusLabel.text == nil || statusLabel.text == "Pop-up" {
+            missingFields.append("Status")
+        }
+
+        if attemptsLabel.text == nil || attemptsLabel.text == "Pop-up" {
+            missingFields.append("Attempts")
+        }
+
+        // If any required field is missing, show an alert
+        if !missingFields.isEmpty {
+            let message = "Please fill in the following fields:\n" + missingFields.joined(separator: ", ")
+
+            let alert = UIAlertController(title: "Missing Fields", message: message, preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+
+            self.present(alert, animated: true, completion: nil)
+
+            return false // Block save
+        }
+
+        return true // All good
+    }
+
     
     /// Saves the Send object to Firebase Firestore with optional UI actions
     /// - Parameters:
