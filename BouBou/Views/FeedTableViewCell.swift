@@ -42,4 +42,13 @@ class FeedTableViewCell: UITableViewCell {
         sendImageView.clipsToBounds = true
         // 不设置 contentMode，这个交给 cellForRowAt 里动态设置（填图片 or SF Symbol）
     }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        avatarImageView.layer.cornerRadius = avatarImageView.frame.height / 2
+        avatarImageView.clipsToBounds = true
+        avatarImageView.layer.masksToBounds = true
+    }
+
 }

@@ -142,6 +142,11 @@ class ProfileViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: false)
+        
+        // avatar image load
+        if let user = Auth.auth().currentUser {
+            loadAvatarImage(for: user.uid)
+        }
     }
     
     

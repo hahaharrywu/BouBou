@@ -70,6 +70,12 @@ class FeedViewController: UIViewController, UITableViewDelegate, UITableViewData
     // Existing sends array
     var sends: [FeedSend] = []
     
+    var avatarUrlCache = [String: String]()  // userId → avatarUrl
+    
+    var userNameCache = [String: String]()  // userId → customUserName
+
+
+    
     @IBOutlet weak var segmentedControl: UISegmentedControl!
 
     
@@ -187,18 +193,34 @@ class FeedViewController: UIViewController, UITableViewDelegate, UITableViewData
 
         let send = sends[indexPath.row] // Get the Send object for this row
 
-        // Determine display name based on userName and fallback to email prefix if needed
-        let displayName: String
-        if send.userName.isEmpty {
-            // If userName is empty, fallback to email prefix (before "@")
-            displayName = send.userEmail.components(separatedBy: "@").first ?? "unknown"
+        // Determine display name: prefer users collection → fallback to send.userName
+        if let cachedName = userNameCache[send.userId] {
+            print("👤 Using cached customUserName for \(send.userId): \(cachedName)")
+            cell.nameLabel.text = cachedName
         } else {
-            // If userName is not empty, use it directly
-            displayName = send.userName
+            let db = Firestore.firestore()
+            db.collection("users").document(send.userId).getDocument { snapshot, error in
+                if let doc = snapshot, doc.exists,
+                   let customName = doc.get("customUserName") as? String,
+                   !customName.isEmpty {
+                    print("✅ Loaded customUserName from Firestore: \(customName)")
+
+                    // Cache and apply
+                    self.userNameCache[send.userId] = customName
+                    DispatchQueue.main.async {
+                        cell.nameLabel.text = customName
+                    }
+                } else {
+                    // fallback: use send.userName
+                    print("⚠️ No customUserName, fallback to send.userName: \(send.userName)")
+                    self.userNameCache[send.userId] = send.userName // still cache
+                    DispatchQueue.main.async {
+                        cell.nameLabel.text = send.userName
+                    }
+                }
+            }
         }
 
-        // Set the name label to the display name
-        cell.nameLabel.text = displayName
 
         // Set Send Info Label as "Color-V#" (example: "Red-V3")
         cell.sendInfoLabel.text = send.colorGrade
@@ -247,8 +269,36 @@ class FeedViewController: UIViewController, UITableViewDelegate, UITableViewData
         cell.dateLabel.text = dateString
 
 
-        // Set a default avatar image
-        cell.avatarImageView.image = UIImage(systemName: "person.circle")
+        // Avatar image load from user profile
+        if let cachedUrlString = avatarUrlCache[send.userId], let cachedUrl = URL(string: cachedUrlString) {
+            print("👤 Using cached avatar for \(send.userId)")
+            loadImage(with: cachedUrl, into: cell.avatarImageView)
+        } else {
+            // Fetch from Firestore
+            let db = Firestore.firestore()
+            db.collection("users").document(send.userId).getDocument { snapshot, error in
+                if let doc = snapshot, doc.exists,
+                   let avatarUrlString = doc.get("avatarUrl") as? String,
+                   let avatarUrl = URL(string: avatarUrlString) {
+                    print("👤 Loaded avatar from Firestore for \(send.userId): \(avatarUrlString)")
+
+                    // Save to cache
+                    self.avatarUrlCache[send.userId] = avatarUrlString
+
+                    // Set image
+                    DispatchQueue.main.async {
+                        self.loadImage(with: avatarUrl, into: cell.avatarImageView)
+                    }
+                } else {
+                    print("👤 No avatar found for \(send.userId), using default")
+                    DispatchQueue.main.async {
+                        cell.avatarImageView.image = UIImage(named: "Avatar_Cat")
+                    }
+                }
+            }
+        }
+
+
 
         // Load the send image from URL (if any)
         if let url = URL(string: send.imageUrl), !send.imageUrl.isEmpty {
@@ -347,6 +397,9 @@ class FeedViewController: UIViewController, UITableViewDelegate, UITableViewData
     @objc func refreshPulled() {
         print("🔄 User triggered pull-to-refresh")
         
+        avatarUrlCache.removeAll()
+        userNameCache.removeAll()
+        
         // End refresh AFTER fetch finishes → 放进 DispatchQueue.main.async
         fetchData()
         
@@ -377,6 +430,11 @@ class FeedViewController: UIViewController, UITableViewDelegate, UITableViewData
                     self.imageCache.setObject(downloadedImage, forKey: urlString)
                     // Set image to view
                     imageView.image = downloadedImage
+                    
+                    imageView.layer.cornerRadius = imageView.frame.height / 2
+                    imageView.clipsToBounds = true
+                    imageView.layer.masksToBounds = true
+
                 }
             } else if retryCount > 0 {
                 print("❌ Error loading image: \(error?.localizedDescription ?? "unknown error") → retrying... (\(retryCount) left)")
