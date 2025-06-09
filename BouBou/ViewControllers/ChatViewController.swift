@@ -13,8 +13,8 @@ import FirebaseAuth //Cecilia added
 class ChatViewController: UIViewController {
     
     @IBOutlet weak var chatsTableView: UITableView!
-    @IBOutlet weak var addFriendButton: UIBarButtonItem!
-    @IBOutlet weak var requestsButton: UIBarButtonItem!
+//    @IBOutlet weak var addFriendButton: UIBarButtonItem!
+//    @IBOutlet weak var requestsButton: UIBarButtonItem!
 
     private var chats: [Chat] = []
     private let db = Firestore.firestore()
@@ -29,10 +29,10 @@ class ChatViewController: UIViewController {
         loadChats()
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        updateRequestsButtonBadge()
-    }
+//    override func viewWillAppear(_ animated: Bool) {
+//        super.viewWillAppear(animated)
+//        updateRequestsButtonBadge()
+//    }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
@@ -43,6 +43,11 @@ class ChatViewController: UIViewController {
         title = "Chats"
         navigationController?.navigationBar.prefersLargeTitles = true
     }
+    
+    @IBAction func didTapRequestsButton(_ sender: UIBarButtonItem) {
+        performSegue(withIdentifier: "goToFriendRequests", sender: self)
+    }
+
     
     private func setupTableView() {
         chatsTableView.delegate = self
@@ -340,30 +345,30 @@ class ChatViewController: UIViewController {
         }
     }
     
-    private func updateRequestsButtonBadge() {
-        guard let currentUserID = Auth.auth().currentUser?.uid else { return }
-        
-        db.collection("friendRequests")
-            .whereField("recipientID", isEqualTo: currentUserID)
-            .whereField("status", isEqualTo: "pending")
-            .getDocuments { [weak self] snapshot, error in
-                if let error = error {
-                    print("Error fetching request count: \(error)")
-                    return
-                }
-                
-                let count = snapshot?.documents.count ?? 0
-                DispatchQueue.main.async {
-                    if count > 0 {
-                        self?.requestsButton.title = "Requests (\(count))"
-                        self?.requestsButton.tintColor = .systemRed
-                    } else {
-                        self?.requestsButton.title = "Requests"
-                        self?.requestsButton.tintColor = .systemBlue
-                    }
-                }
-            }
-    }
+//    private func updateRequestsButtonBadge() {
+//        guard let currentUserID = Auth.auth().currentUser?.uid else { return }
+//        
+//        db.collection("friendRequests")
+//            .whereField("recipientID", isEqualTo: currentUserID)
+//            .whereField("status", isEqualTo: "pending")
+//            .getDocuments { [weak self] snapshot, error in
+//                if let error = error {
+//                    print("Error fetching request count: \(error)")
+//                    return
+//                }
+//                
+//                let count = snapshot?.documents.count ?? 0
+//                DispatchQueue.main.async {
+//                    if count > 0 {
+//                        self?.requestsButton.title = "Requests (\(count))"
+//                        self?.requestsButton.tintColor = .systemRed
+//                    } else {
+//                        self?.requestsButton.title = "Requests"
+//                        self?.requestsButton.tintColor = .systemBlue
+//                    }
+//                }
+//            }
+//    }
     
     private func navigateToMessages(chatID: String) {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)

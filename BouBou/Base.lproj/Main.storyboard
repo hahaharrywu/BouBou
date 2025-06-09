@@ -148,7 +148,7 @@
                     </tabBar>
                     <connections>
                         <segue destination="emh-9s-aHr" kind="relationship" relationship="viewControllers" id="T2M-p0-We9"/>
-                        <segue destination="VgF-sh-AbI" kind="relationship" relationship="viewControllers" id="0yQ-AW-yzT"/>
+                        <segue destination="0sb-vl-gZh" kind="relationship" relationship="viewControllers" id="0yQ-AW-yzT"/>
                         <segue destination="35B-tc-PbH" kind="relationship" relationship="viewControllers" id="aIy-Zw-VMz"/>
                         <segue destination="OOZ-s1-J1o" kind="relationship" relationship="viewControllers" id="q3M-GZ-v7X"/>
                         <segue destination="JWO-PV-9gI" kind="relationship" relationship="viewControllers" id="W3u-5G-amS"/>
@@ -183,6 +183,7 @@
                         <viewLayoutGuide key="safeArea" id="8G1-6k-rZ9"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
+                    <navigationItem key="navigationItem" id="qOx-sb-9nk"/>
                     <connections>
                         <outlet property="requestsTableView" destination="DPP-l3-JWE" id="mg5-I4-Vpf"/>
                         <outlet property="segmentedControl" destination="seW-oi-nNU" id="77v-DE-FRs"/>
@@ -190,7 +191,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="gCm-4M-XH4" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-1260" y="-1731.1158798283263"/>
+            <point key="canvasLocation" x="-77" y="-1715"/>
         </scene>
         <!--Messages-->
         <scene sceneID="NEo-Gq-nSG">
@@ -240,9 +241,9 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="0XR-cO-Qvg" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-491.16279069767444" y="-1731.1158798283263"/>
+            <point key="canvasLocation" x="646" y="-1715"/>
         </scene>
-        <!--Chat-->
+        <!--Friends-->
         <scene sceneID="agC-Gh-eC5">
             <objects>
                 <viewController id="VgF-sh-AbI" customClass="ChatViewController" customModule="BouBou" customModuleProvider="target" sceneMemberID="viewController">
@@ -254,24 +255,6 @@
                                 <rect key="frame" x="20" y="118" width="390" height="675"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </tableView>
-                            <navigationBar contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="USp-sC-NMb">
-                                <rect key="frame" x="0.0" y="74" width="430" height="44"/>
-                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
-                                <items>
-                                    <navigationItem title="Chats" id="k2n-rw-39A">
-                                        <barButtonItem key="leftBarButtonItem" title="Requests" id="1va-QM-U0t">
-                                            <connections>
-                                                <action selector="requestsButtonTapped:" destination="VgF-sh-AbI" id="aGV-KV-63A"/>
-                                            </connections>
-                                        </barButtonItem>
-                                        <barButtonItem key="rightBarButtonItem" title="Add Friend" id="KLy-cV-xgN">
-                                            <connections>
-                                                <action selector="addFriendButtonTapped:" destination="VgF-sh-AbI" id="EK1-fe-yJQ"/>
-                                            </connections>
-                                        </barButtonItem>
-                                    </navigationItem>
-                                </items>
-                            </navigationBar>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="NYC-AL-dgZ"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -279,18 +262,23 @@
                             <constraint firstItem="QBS-1u-8Ja" firstAttribute="centerX" secondItem="JA4-WG-qRm" secondAttribute="centerX" id="EGg-j7-wlr"/>
                         </constraints>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Chat" image="bubble.fill" catalog="system" id="cGA-V2-fx7"/>
                     <toolbarItems/>
+                    <navigationItem key="navigationItem" title="Friends" id="hAm-dA-2wl">
+                        <barButtonItem key="leftBarButtonItem" systemItem="add" id="ZZQ-u1-Gzc">
+                            <connections>
+                                <action selector="didTapRequestsButton:" destination="VgF-sh-AbI" id="cWz-P4-BuW"/>
+                                <segue destination="kh9-iP-bF9" kind="show" identifier="goToFriendRequests" id="Dpt-JS-kjg"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
-                        <outlet property="addFriendButton" destination="KLy-cV-xgN" id="wAw-tf-rOi"/>
                         <outlet property="chatsTableView" destination="QBS-1u-8Ja" id="zch-hc-rRm"/>
-                        <outlet property="requestsButton" destination="1va-QM-U0t" id="avR-rU-7dS"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="FsL-wf-5dE" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-491.16279069767444" y="-1020.3862660944206"/>
+            <point key="canvasLocation" x="257" y="-1020"/>
         </scene>
         <!--Ranking-->
         <scene sceneID="eJF-tY-E7Z">
@@ -450,7 +438,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ECP-GQ-bez" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1011.6279069767442" y="-1020.3862660944206"/>
+            <point key="canvasLocation" x="1760" y="-1020"/>
         </scene>
         <!--Feed-->
         <scene sceneID="1zp-6Q-JSZ">
@@ -633,7 +621,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="8hH-c6-f6z" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="256.74418604651163" y="-1020.3862660944206"/>
+            <point key="canvasLocation" x="1012" y="-1020"/>
         </scene>
         <!--Profile View Controller-->
         <scene sceneID="kwP-MT-C85">
@@ -2090,7 +2078,7 @@
                 <tapGestureRecognizer id="sZr-CW-rxc"/>
                 <tapGestureRecognizer id="hc7-eq-ein"/>
             </objects>
-            <point key="canvasLocation" x="-410" y="539"/>
+            <point key="canvasLocation" x="-491" y="539"/>
         </scene>
         <!--Last Session View Controller-->
         <scene sceneID="Q8h-nW-evG">
@@ -2255,6 +2243,25 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="hIS-xy-Dbd" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="256.74418604651163" y="-187.33905579399143"/>
+        </scene>
+        <!--Friends-->
+        <scene sceneID="Vd0-c8-ZPe">
+            <objects>
+                <navigationController title="Friends" automaticallyAdjustsScrollViewInsets="NO" id="0sb-vl-gZh" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="Chat" image="bubble.fill" catalog="system" id="cGA-V2-fx7"/>
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="5aX-s0-3uh">
+                        <rect key="frame" x="0.0" y="59" width="430" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="VgF-sh-AbI" kind="relationship" relationship="rootViewController" id="fSD-aL-J1p"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="adS-to-qOE" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-491.16279069767444" y="-1020.3862660944206"/>
         </scene>
     </scenes>
     <color key="tintColor" red="0.83606690169999998" green="0.4381604791" blue="0.3471366763" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
