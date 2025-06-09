@@ -1831,6 +1831,9 @@
                                 </constraints>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="filled" title="Log Out"/>
+                                <connections>
+                                    <action selector="logOutButtonTapped:" destination="6Gw-ZS-wbt" eventType="touchUpInside" id="5UO-N8-fef"/>
+                                </connections>
                             </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="CzB-dn-98s"/>
@@ -1848,6 +1851,12 @@
                             <constraint firstItem="uVu-Fw-6iz" firstAttribute="top" secondItem="CzB-dn-98s" secondAttribute="top" id="zEn-yO-3JV"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <outlet property="avatarImageView" destination="HJf-oD-8GT" id="zcr-ma-qMY"/>
+                        <outlet property="backgroundImageView" destination="uVu-Fw-6iz" id="nhJ-Bf-Dlc"/>
+                        <outlet property="userEmailLabel" destination="jzi-yd-4cn" id="9pC-8X-1nk"/>
+                        <outlet property="userNameLabel" destination="QTx-i8-Hiq" id="Uz2-DL-M8B"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="9HN-Yp-DXI" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
