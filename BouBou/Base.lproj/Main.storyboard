@@ -555,6 +555,15 @@
                                                     <color key="textColor" systemColor="systemGrayColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="isShared?" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oyb-XB-e7q">
+                                                    <rect key="frame" x="283" y="11" width="75" height="22"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="height" constant="22" id="axh-XH-oa8"/>
+                                                    </constraints>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
                                             </subviews>
                                             <constraints>
                                                 <constraint firstAttribute="trailingMargin" secondItem="K17-S4-Chl" secondAttribute="trailing" id="1rY-QQ-Zli"/>
@@ -562,10 +571,12 @@
                                                 <constraint firstItem="3x2-Op-vTJ" firstAttribute="leading" secondItem="Z9X-V1-bMZ" secondAttribute="trailing" constant="8" symbolic="YES" id="FXL-o4-Cda"/>
                                                 <constraint firstItem="3x2-Op-vTJ" firstAttribute="top" secondItem="8cD-ZM-Vu3" secondAttribute="bottom" constant="6" id="OD1-aR-Mvg"/>
                                                 <constraint firstItem="Z9X-V1-bMZ" firstAttribute="top" secondItem="xxt-4d-iac" secondAttribute="topMargin" id="Pxo-Oa-3bq"/>
+                                                <constraint firstAttribute="trailingMargin" secondItem="oyb-XB-e7q" secondAttribute="trailing" constant="42" id="Qhe-WU-bpf"/>
                                                 <constraint firstItem="K17-S4-Chl" firstAttribute="leading" secondItem="NdZ-Ih-R41" secondAttribute="trailing" constant="8" id="WKm-uP-R7y"/>
                                                 <constraint firstItem="5dI-C8-eCk" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="8cD-ZM-Vu3" secondAttribute="trailing" constant="8" symbolic="YES" id="ZCk-r4-UF9"/>
                                                 <constraint firstItem="zzC-Ot-JIa" firstAttribute="leading" secondItem="xxt-4d-iac" secondAttribute="leadingMargin" id="baw-cF-cBr"/>
                                                 <constraint firstItem="K17-S4-Chl" firstAttribute="leading" secondItem="8cD-ZM-Vu3" secondAttribute="trailing" constant="8" id="doU-qn-XT1"/>
+                                                <constraint firstItem="oyb-XB-e7q" firstAttribute="top" secondItem="xxt-4d-iac" secondAttribute="topMargin" id="e0E-n0-wXy"/>
                                                 <constraint firstAttribute="bottomMargin" secondItem="Zn2-7H-q4y" secondAttribute="bottom" constant="10" id="eHW-Bz-yKd"/>
                                                 <constraint firstItem="Zn2-7H-q4y" firstAttribute="top" secondItem="zzC-Ot-JIa" secondAttribute="bottom" constant="10" id="eYC-6F-epq"/>
                                                 <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="Zn2-7H-q4y" secondAttribute="trailing" constant="20" symbolic="YES" id="ecv-qa-RMS"/>
@@ -591,6 +602,7 @@
                                             <outlet property="avatarImageView" destination="Z9X-V1-bMZ" id="Lfb-5H-JqN"/>
                                             <outlet property="dateLabel" destination="Zn2-7H-q4y" id="cCS-aX-GA1"/>
                                             <outlet property="feelingLabel" destination="zzC-Ot-JIa" id="itY-iU-4Mv"/>
+                                            <outlet property="isSharedLabel" destination="oyb-XB-e7q" id="lz5-jt-x2u"/>
                                             <outlet property="nameLabel" destination="8cD-ZM-Vu3" id="yFN-KM-kNS"/>
                                             <outlet property="optionsButton" destination="5dI-C8-eCk" id="tbl-k8-Eol"/>
                                             <outlet property="sendImageView" destination="K17-S4-Chl" id="9d2-N4-Xv6"/>

@@ -17,6 +17,8 @@ class FeedTableViewCell: UITableViewCell {
     @IBOutlet weak var summaryLabel: UILabel!
     @IBOutlet weak var feelingLabel: UILabel!
     @IBOutlet weak var dateLabel: UILabel!
+    @IBOutlet weak var isSharedLabel: UILabel!
+    
 
     
     @IBAction func optionsButtonTapped(_ sender: UIButton) {
