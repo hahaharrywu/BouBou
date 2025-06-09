@@ -132,12 +132,67 @@ class ProfileViewController: UIViewController {
         let avatarTap = UITapGestureRecognizer(target: self, action: #selector(avatarTapped))
         avatarImageView.addGestureRecognizer(avatarTap)
         avatarImageView.isUserInteractionEnabled = true
+        
+        // avatar image load
+        if let user = Auth.auth().currentUser {
+            loadAvatarImage(for: user.uid)
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: false)
     }
+    
+    
+    func loadAvatarImage(for userId: String) {
+        let db = Firestore.firestore()
+        
+        db.collection("users").document(userId).getDocument { documentSnapshot, error in
+            if let error = error {
+                print("❌ Failed to load avatar: \(error.localizedDescription)")
+                DispatchQueue.main.async {
+                    self.avatarImageView.image = UIImage(named: "Avatar_Cat")
+                }
+                return
+            }
+            
+            guard let document = documentSnapshot, document.exists else {
+                print("ℹ️ Avatar document doesn't exist. Using default.")
+                DispatchQueue.main.async {
+                    self.avatarImageView.image = UIImage(named: "Avatar_Cat")
+                }
+                return
+            }
+            
+            if let avatarUrlString = document.get("avatarUrl") as? String,
+               !avatarUrlString.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+               let avatarUrl = URL(string: avatarUrlString.trimmingCharacters(in: .whitespacesAndNewlines)) {
+                
+                print("✅ Loaded avatarUrl: \(avatarUrlString)")
+                
+                URLSession.shared.dataTask(with: avatarUrl) { data, response, error in
+                    if let data = data, let image = UIImage(data: data) {
+                        DispatchQueue.main.async {
+                            self.avatarImageView.image = image
+                        }
+                    } else {
+                        print("❌ Failed to load avatar image data. Using default.")
+                        DispatchQueue.main.async {
+                            self.avatarImageView.image = UIImage(named: "Avatar_Cat")
+                        }
+                    }
+                }.resume()
+                
+            } else {
+                print("ℹ️ No valid avatarUrl found. Using default.")
+                DispatchQueue.main.async {
+                    self.avatarImageView.image = UIImage(named: "Avatar_Cat")
+                }
+            }
+        }
+    }
+
 
     
     

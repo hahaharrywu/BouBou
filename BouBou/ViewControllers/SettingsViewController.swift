@@ -108,11 +108,24 @@ class SettingsViewController: UIViewController, UIImagePickerControllerDelegate,
 
                 guard let document = documentSnapshot, document.exists else {
                     print("❌ Document does not exist.")
+                    
                     self.avatarImageView.image = UIImage(named: "Avatar_Cat")
                     self.backgroundImageView.image = UIImage(named: "Background_ElCapitan")
                     self.backgroundImageView.contentMode = .scaleAspectFill
-                    self.userNameLabel.text = "Your Name"
-                    self.updatedUserName = "Your Name"
+
+                    // Use email prefix as fallback username
+                    if let email = user.email,
+                       let namePart = email.components(separatedBy: "@").first,
+                       !namePart.isEmpty {
+                        print("✅ Using email prefix as fallback username: \(namePart)")
+                        self.userNameLabel.text = namePart
+                        self.updatedUserName = namePart
+                    } else {
+                        print("⚠️ Email not available. Using default username.")
+                        self.userNameLabel.text = "Your Name"
+                        self.updatedUserName = "Your Name"
+                    }
+
                     return
                 }
 
@@ -183,15 +196,25 @@ class SettingsViewController: UIViewController, UIImagePickerControllerDelegate,
                     self.backgroundUrlToSave = ""
                 }
 
-                // username
-                if let username = document.get("username") as? String {
-                    print("✅ Loaded username from Firestore: \(username)")
-                    self.userNameLabel.text = username
-                    self.updatedUserName = username
+                // customUserName
+                if let customUserName = document.get("customUserName") as? String, !customUserName.isEmpty {
+                    print("✅ Loaded customUserName from Firestore: \(customUserName)")
+                    self.userNameLabel.text = customUserName
+                    self.updatedUserName = customUserName
                 } else {
-                    print("ℹ️ No username found in Firestore, using default.")
-                    self.userNameLabel.text = "Your Name"
-                    self.updatedUserName = "Your Name"
+                    print("ℹ️ No customUserName found. Using email prefix as fallback...")
+
+                    if let email = user.email,
+                       let namePart = email.components(separatedBy: "@").first,
+                       !namePart.isEmpty {
+                        print("✅ Using email prefix: \(namePart)")
+                        self.userNameLabel.text = namePart
+                        self.updatedUserName = namePart
+                    } else {
+                        print("⚠️ Email not available. Using default username.")
+                        self.userNameLabel.text = "Your Name"
+                        self.updatedUserName = "Your Name"
+                    }
                 }
             }
         }
@@ -339,7 +362,7 @@ class SettingsViewController: UIViewController, UIImagePickerControllerDelegate,
                     print("✅ New User Name accepted: \(newUserName)")
                     self.userNameLabel.text = newUserName
                     self.updatedUserName = newUserName
-                    self.updateUserProfileField(key: "username", value: newUserName)
+                    self.updateUserProfileField(key: "customUserName", value: newUserName)
                 } else {
                     print("❌ User Name exceeds 9 words")
                     self.showErrorAlert(message: "User Name cannot exceed 9 words.")
