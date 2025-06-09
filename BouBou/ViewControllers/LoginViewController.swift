@@ -7,6 +7,7 @@
 
 import UIKit
 import FirebaseAuth
+import FirebaseFirestore
 
 class LoginViewController: UIViewController {
     
@@ -126,6 +127,24 @@ class LoginViewController: UIViewController {
                     self.showAlert(title: "Sign Up Failed", message: error.localizedDescription)
                     return
                 }
+                
+                // write to Firestore
+                if let user = authResult?.user {
+                    let db = Firestore.firestore()
+                    db.collection("users").document(user.uid).setData([
+                        "email": user.email ?? "",
+                        "customUserName": "",
+                        "avatarUrl": "",
+                        "backgroundUrl": ""
+                    ], merge: true) { error in
+                        if let error = error {
+                            print("❌ Failed to write user to Firestore: \(error.localizedDescription)")
+                        } else {
+                            print("✅ User written to Firestore successfully")
+                        }
+                    }
+                }
+                
                 self.goToMainScreen()
             }
         } else {

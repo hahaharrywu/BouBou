@@ -174,6 +174,9 @@
                                 </constraints>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="filled" title="Add"/>
+                                <connections>
+                                    <action selector="addButtonTapped:" destination="kh9-iP-bF9" eventType="touchUpInside" id="WGL-Pz-5fZ"/>
+                                </connections>
                             </button>
                             <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Mp1-Ua-Wz9">
                                 <rect key="frame" x="20" y="103" width="315" height="36"/>
@@ -195,6 +198,9 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Add Friend" id="qOx-sb-9nk"/>
+                    <connections>
+                        <outlet property="emailTextField" destination="Mp1-Ua-Wz9" id="X6f-ci-adp"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="gCm-4M-XH4" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -210,7 +216,7 @@
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="QBS-1u-8Ja">
                                 <rect key="frame" x="5" y="103" width="420" height="729"/>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <color key="backgroundColor" red="0.98365753889999996" green="0.94552129510000005" blue="0.9120374322" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="FriendCell" rowHeight="70" id="NZF-p3-bLc" customClass="FriendTableViewCell" customModule="BouBou" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="50" width="420" height="70"/>
@@ -232,7 +238,7 @@
                                                         <constraint firstAttribute="height" constant="24" id="14e-Ag-HgI"/>
                                                     </constraints>
                                                     <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
-                                                    <nil key="textColor"/>
+                                                    <color key="textColor" red="0.83606690169999998" green="0.4381604791" blue="0.3471366763" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Comment" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zYo-Kh-Jem">
@@ -251,6 +257,9 @@
                                                     </constraints>
                                                     <state key="normal" title="Button"/>
                                                     <buttonConfiguration key="configuration" style="plain" image="ellipsis" catalog="system"/>
+                                                    <connections>
+                                                        <action selector="optionsButtonTapped:" destination="NZF-p3-bLc" eventType="touchUpInside" id="wPG-bK-ytY"/>
+                                                    </connections>
                                                 </button>
                                             </subviews>
                                             <constraints>
@@ -262,15 +271,19 @@
                                                 <constraint firstItem="RVT-Nc-tO5" firstAttribute="leading" secondItem="98H-Yv-Avs" secondAttribute="leadingMargin" constant="8" id="JNK-SL-Doc"/>
                                                 <constraint firstItem="AMO-Dk-q4D" firstAttribute="centerY" secondItem="98H-Yv-Avs" secondAttribute="centerY" id="KFH-S5-6Ay"/>
                                                 <constraint firstItem="AMO-Dk-q4D" firstAttribute="leading" secondItem="UAn-tk-1aM" secondAttribute="trailing" constant="2.3333333333333144" id="XqS-1I-yL3"/>
+                                                <constraint firstItem="RVT-Nc-tO5" firstAttribute="top" secondItem="98H-Yv-Avs" secondAttribute="top" constant="5" id="bxG-6h-lLE"/>
                                                 <constraint firstAttribute="trailingMargin" secondItem="UAn-tk-1aM" secondAttribute="trailing" constant="50" id="jRa-2v-Lth"/>
+                                                <constraint firstAttribute="bottom" secondItem="RVT-Nc-tO5" secondAttribute="bottom" constant="5" id="jSG-yh-5MB"/>
                                                 <constraint firstItem="zYo-Kh-Jem" firstAttribute="bottom" secondItem="98H-Yv-Avs" secondAttribute="bottomMargin" id="jiN-Rw-m7z"/>
                                                 <constraint firstItem="zYo-Kh-Jem" firstAttribute="leading" secondItem="RVT-Nc-tO5" secondAttribute="trailing" constant="8" symbolic="YES" id="koI-3T-SJJ"/>
                                             </constraints>
                                         </tableViewCellContentView>
+                                        <color key="backgroundColor" red="0.98365753889999996" green="0.94552129510000005" blue="0.9120374322" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <connections>
                                             <outlet property="avatarImageView" destination="RVT-Nc-tO5" id="cA9-BN-Pw4"/>
                                             <outlet property="commentLabel" destination="zYo-Kh-Jem" id="ukB-dA-l8e"/>
                                             <outlet property="nameLabel" destination="UAn-tk-1aM" id="qFW-ye-8MU"/>
+                                            <outlet property="optionsButton" destination="AMO-Dk-q4D" id="oaB-Yq-eYI"/>
                                         </connections>
                                     </tableViewCell>
                                 </prototypes>
@@ -583,7 +596,8 @@
                                                 <constraint firstItem="3x2-Op-vTJ" firstAttribute="leading" secondItem="Z9X-V1-bMZ" secondAttribute="trailing" constant="8" symbolic="YES" id="FXL-o4-Cda"/>
                                                 <constraint firstItem="3x2-Op-vTJ" firstAttribute="top" secondItem="8cD-ZM-Vu3" secondAttribute="bottom" constant="6" id="OD1-aR-Mvg"/>
                                                 <constraint firstItem="Z9X-V1-bMZ" firstAttribute="top" secondItem="xxt-4d-iac" secondAttribute="topMargin" id="Pxo-Oa-3bq"/>
-                                                <constraint firstAttribute="trailingMargin" secondItem="oyb-XB-e7q" secondAttribute="trailing" constant="42" id="Qhe-WU-bpf"/>
+                                                <constraint firstAttribute="trailingMargin" relation="greaterThanOrEqual" secondItem="oyb-XB-e7q" secondAttribute="trailing" id="Qhe-WU-bpf"/>
+                                                <constraint firstItem="oyb-XB-e7q" firstAttribute="leading" secondItem="8cD-ZM-Vu3" secondAttribute="trailing" constant="51" id="V81-qa-PUl"/>
                                                 <constraint firstItem="K17-S4-Chl" firstAttribute="leading" secondItem="NdZ-Ih-R41" secondAttribute="trailing" constant="8" id="WKm-uP-R7y"/>
                                                 <constraint firstItem="5dI-C8-eCk" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="8cD-ZM-Vu3" secondAttribute="trailing" constant="8" symbolic="YES" id="ZCk-r4-UF9"/>
                                                 <constraint firstItem="zzC-Ot-JIa" firstAttribute="leading" secondItem="xxt-4d-iac" secondAttribute="leadingMargin" id="baw-cF-cBr"/>
