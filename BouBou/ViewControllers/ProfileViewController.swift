@@ -19,7 +19,8 @@ class ProfileViewController: UIViewController {
     @IBOutlet weak var chartView: UIView!
     @IBOutlet weak var currentGradeLabel: UILabel!
     @IBOutlet weak var lastSessionContainerView: UIView!
-
+    @IBOutlet weak var emptyStateLabel: UILabel!
+    
     
     
     @IBOutlet weak var v1NumberLabel: UILabel!
@@ -287,28 +288,10 @@ class ProfileViewController: UIViewController {
                     return
                 }
 
-                let allSends = snapshot?.documents.compactMap { FeedSend(documentID: $0.documentID, dict: $0.data()) } ?? []
+                let allSends = snapshot?.documents.compactMap {
+                    FeedSend(documentID: $0.documentID, dict: $0.data())
+                } ?? []
 
-                guard let latestDate = allSends.first?.timestamp.dateValue() else { return }
-                let calendar = Calendar.current
-
-                let sameDaySends = allSends.filter {
-                    calendar.isDate($0.timestamp.dateValue(), inSameDayAs: latestDate)
-                }
-                
-                
-
-                let limited = Array(sameDaySends.prefix(12))
-                
-                
-                print("🧪 Last session sends (\(limited.count)):")
-
-                for (index, send) in limited.enumerated() {
-                    print("👉 [\(index)] Grade: \(send.grade), Status: \(send.status)")
-                }
-
-
-                // UI
                 let subViews = [
                     self.lastSessionSubView_1, self.lastSessionSubView_2, self.lastSessionSubView_3,
                     self.lastSessionSubView_4, self.lastSessionSubView_5, self.lastSessionSubView_6,
@@ -330,7 +313,45 @@ class ProfileViewController: UIViewController {
                     self.lastSessionStatusLabel_10, self.lastSessionStatusLabel_11, self.lastSessionStatusLabel_12
                 ]
 
+                // Empty fallback BEFORE trying to unwrap date
+                if allSends.isEmpty {
+                    DispatchQueue.main.async {
+                        print("📭 No sends found at all. Showing empty state.")
+
+                        for i in 0..<12 {
+                            subViews[i]?.isHidden = true
+                            gradeLabels[i]?.isHidden = true
+                            statusLabels[i]?.isHidden = true
+                        }
+
+                        self.emptyStateLabel.isHidden = false
+                        self.emptyStateLabel.text = "No sends yet.\nTap Add to start your first session!"
+                        self.emptyStateLabel.numberOfLines = 0
+                        self.emptyStateLabel.textAlignment = .center
+                        
+                        // disable tap last session function
+                        self.lastSessionContainerView.isUserInteractionEnabled = false
+                    }
+                    return
+                }
+
+                // At least one send exists, continue logic
+                guard let latestDate = allSends.first?.timestamp.dateValue() else {
+                    print("⚠️ Could not parse latest date from sends.")
+                    return
+                }
+
+                let calendar = Calendar.current
+                let sameDaySends = allSends.filter {
+                    calendar.isDate($0.timestamp.dateValue(), inSameDayAs: latestDate)
+                }
+
+                let limited = Array(sameDaySends.prefix(12))
+
                 DispatchQueue.main.async {
+                    print("📦 Showing last session sends (\(limited.count))")
+                    self.emptyStateLabel.isHidden = true
+
                     for i in 0..<12 {
                         if i < limited.count {
                             let send = limited[i]
@@ -342,22 +363,23 @@ class ProfileViewController: UIViewController {
                             switch send.status {
                             case "Onsight", "Flash":
                                 statusLabels[i]?.text = "⚡️"
-                            case "Fail":
+                            case "Fail", "Projecting":
                                 statusLabels[i]?.text = "❌"
                             default:
                                 statusLabels[i]?.text = "✅"
                             }
                         } else {
+                            subViews[i]?.isHidden = false
                             gradeLabels[i]?.text = ""
                             statusLabels[i]?.text = ""
                             gradeLabels[i]?.isHidden = true
                             statusLabels[i]?.isHidden = true
-                            subViews[i]?.isHidden = false
                         }
                     }
                 }
             }
     }
+
 
 
 

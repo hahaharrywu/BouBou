@@ -1152,14 +1152,22 @@
                                             <constraint firstAttribute="trailing" secondItem="ncM-sY-iJ6" secondAttribute="trailing" id="okF-sh-Ly7"/>
                                         </constraints>
                                     </stackView>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="no log prompt" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lga-AZ-VAA">
+                                        <rect key="frame" x="136.66666666666666" y="79" width="106.66666666666666" height="20.333333333333329"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <color key="textColor" red="0.83606690169999998" green="0.4381604791" blue="0.3471366763" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
                                 </subviews>
                                 <color key="backgroundColor" red="0.96862745100000003" green="0.78823529410000004" blue="0.71764705880000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
                                     <constraint firstItem="Z1m-g4-WMJ" firstAttribute="leading" secondItem="980-gV-u4m" secondAttribute="leading" constant="15" id="0I9-6J-Rdj"/>
                                     <constraint firstItem="e85-qu-EZR" firstAttribute="top" secondItem="980-gV-u4m" secondAttribute="topMargin" id="1DO-ms-f0h"/>
                                     <constraint firstAttribute="trailing" secondItem="Z1m-g4-WMJ" secondAttribute="trailing" constant="15" id="AsP-7Q-tJf"/>
+                                    <constraint firstItem="lga-AZ-VAA" firstAttribute="centerY" secondItem="980-gV-u4m" secondAttribute="centerY" id="BBa-he-7Gr"/>
                                     <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="e85-qu-EZR" secondAttribute="trailing" constant="20" symbolic="YES" id="Fvn-kJ-MdR"/>
                                     <constraint firstAttribute="height" constant="178" id="WSt-qR-2EZ"/>
+                                    <constraint firstItem="lga-AZ-VAA" firstAttribute="centerX" secondItem="980-gV-u4m" secondAttribute="centerX" id="akI-9T-Bld"/>
                                     <constraint firstItem="e85-qu-EZR" firstAttribute="leading" secondItem="980-gV-u4m" secondAttribute="leading" constant="18" id="auX-FW-7Ta"/>
                                     <constraint firstAttribute="bottom" secondItem="Z1m-g4-WMJ" secondAttribute="bottom" constant="12" id="doY-JR-x0P"/>
                                 </constraints>
@@ -1710,6 +1718,7 @@
                         <outlet property="avatarImageView" destination="gqz-hx-osi" id="0I5-3Y-N4L"/>
                         <outlet property="chartView" destination="Tk4-B0-XyR" id="lwL-wO-cTs"/>
                         <outlet property="currentGradeLabel" destination="CGB-y2-E5P" id="j2x-Ym-O6d"/>
+                        <outlet property="emptyStateLabel" destination="lga-AZ-VAA" id="I81-3u-sOw"/>
                         <outlet property="lastSessionContainerView" destination="980-gV-u4m" id="8zr-YM-dBc"/>
                         <outlet property="lastSessionGradeLabel_1" destination="axv-ya-fkn" id="UrR-8C-yaJ"/>
                         <outlet property="lastSessionGradeLabel_10" destination="krF-yR-wK3" id="AUB-Rk-VvX"/>

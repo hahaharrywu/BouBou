@@ -237,7 +237,7 @@ class FeedViewController: UIViewController, UITableViewDelegate, UITableViewData
         dateFormatter.locale = Locale.current
         dateFormatter.timeZone = TimeZone.current
 
-        //Set desired display format → example: "2025-06-08 00:21"
+        //Set desired display format → example: "06-08-2025 00:21"
         dateFormatter.dateFormat = "MM-dd-yyyy HH:mm"
 
         //Format the date to string
