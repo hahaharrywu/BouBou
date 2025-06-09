@@ -148,12 +148,35 @@ class LoginViewController: UIViewController {
                 self.goToMainScreen()
             }
         } else {
-            // Log In
+            // Log In → 官方推荐方式 → 直接 signIn → 看 error code 判断
             Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
-                if let error = error {
-                    self.showAlert(title: "Log In Failed", message: error.localizedDescription)
+                if let error = error as NSError? {
+                    print("🔥 signIn error: \(error.code) - \(error.localizedDescription)")
+                    switch AuthErrorCode(rawValue: error.code) {
+                    case .userNotFound:
+                        print("🔥 Handling case: userNotFound (Account Not Found)")
+                        self.showAlert(title: "Account Not Found", message: "You haven't created an account yet. Please click 'Sign up' below to create one.")
+                    case .wrongPassword:
+                        print("🔥 Handling case: wrongPassword (Incorrect Password)")
+                        self.showAlert(title: "Incorrect Password", message: "The password you entered is incorrect. Please try again.")
+                    case .invalidEmail:
+                        print("🔥 Handling case: invalidEmail (Invalid Email)")
+                        self.showAlert(title: "Invalid Email", message: "The email address is badly formatted. Please check and try again.")
+                    case .invalidCredential:
+                        print("🔥 Handling case: invalidCredential → treat as Missing Account or Incorrect Password due to EEP")
+                        self.showAlert(title: "You don't have an account or wrong password", message: "Please click 'Sign up' below to create an account or try again with a different password.")
+                    case .tooManyRequests:
+                        print("🔥 Handling case: tooManyRequests (Too Many Attempts)")
+                        self.showAlert(title: "Too Many Attempts", message: "Too many unsuccessful login attempts. Please try again later.")
+                    default:
+                        print("🔥 Unhandled AuthErrorCode: \(AuthErrorCode(rawValue: error.code)?.rawValue ?? -1)")
+                        self.showAlert(title: "Log In Failed", message: error.localizedDescription)
+                    }
                     return
                 }
+                
+                // 登录成功
+                print("✅ Login successful → goToMainScreen")
                 self.goToMainScreen()
             }
         }
