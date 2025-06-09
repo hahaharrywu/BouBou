@@ -156,35 +156,62 @@ class ProfileViewController: UIViewController {
                     return
                 }
                 
-                // Map documents to FeedSend
-                let sends: [FeedSend] = snapshot?.documents.compactMap { FeedSend(documentID: $0.documentID, dict: $0.data()) } ?? []
-
-                // abtract double grade（"v4" → 4.0）
-                let gradeValues: [Double] = sends.compactMap { send in
-                    let lower = send.grade.lowercased()
-                    if lower.hasPrefix("v") {
-                        let numberPart = lower.replacingOccurrences(of: "v", with: "")
-                        return Double(numberPart)
+                let sends: [FeedSend] = snapshot?.documents.compactMap {
+                    FeedSend(documentID: $0.documentID, dict: $0.data())
+                } ?? []
+                
+                var totalWeightedGrade: Double = 0.0
+                var totalWeight: Double = 0.0
+                
+                for send in sends {
+                    let gradeStr = send.grade.lowercased().replacingOccurrences(of: "v", with: "")
+                    guard let grade = Double(gradeStr) else { continue }
+                    
+                    let status = send.status
+                    let attempts = Int(send.attempts) ?? 0
+                    
+                    var weight: Double = 0.0
+                    
+                    switch status {
+                    case "Onsight":
+                        weight = 1.0
+                    case "Flash":
+                        weight = 0.9
+                    case "Send":
+                        switch attempts {
+                        case 1: weight = 0.9
+                        case 2: weight = 0.8
+                        case 3: weight = 0.7
+                        case 4: weight = 0.6
+                        case 5: weight = 0.5
+                        case 6: weight = 0.4
+                        case 7: weight = 0.3
+                        case 8: weight = 0.2
+                        case 9...: weight = 0.1
+                        default: weight = 0.0
+                        }
+                    case "Projecting", "Fail":
+                        weight = 0.0
+                    default:
+                        weight = 0.0
                     }
-                    return nil
+                    
+                    totalWeightedGrade += grade * weight
+                    totalWeight += weight
                 }
-
-                guard !gradeValues.isEmpty else {
-                    DispatchQueue.main.async {
-                        self.currentGradeLabel.text = "N/A"
-                    }
-                    return
-                }
-
-                // calculate average
-                let average = gradeValues.reduce(0, +) / Double(gradeValues.count)
-                let rounded = Int(round(average))
-
+                
                 DispatchQueue.main.async {
-                    self.currentGradeLabel.text = "V\(rounded)"
+                    if totalWeight == 0 {
+                        self.currentGradeLabel.text = "N/A"
+                    } else {
+                        let weightedAverage = totalWeightedGrade / totalWeight
+                        let rounded = Int(round(weightedAverage))
+                        self.currentGradeLabel.text = "V\(rounded)"
+                    }
                 }
             }
     }
+
     
     func updateGradeCounts(for userId: String) {
         let db = Firestore.firestore()

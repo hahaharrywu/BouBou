@@ -301,14 +301,14 @@ class AddSendViewController: UIViewController,
                 // Update label with chosen status only (no explanation)
                 self.statusLabel.text = status
                 self.statusLabel.textAlignment = .center
-                self.statusLabel.textColor = .label // Turn from gray to black
+                self.statusLabel.textColor = .black // Turn from gray to black
                 
                 // Enforce attempts logic:
                 if status == "Onsight" || status == "Flash" {
                     // Force attempts = 1
                     self.attemptsLabel.text = "1"
                     self.attemptsLabel.textAlignment = .center
-                    self.attemptsLabel.textColor = .label // Turn from gray to black
+                    self.attemptsLabel.textColor = .black // Turn from gray to black
                     // Disable attempts selection
                     self.attemptsPopupStackView.isUserInteractionEnabled = false
                     self.attemptsLabel.alpha = 0.5 // Visually dim the label
@@ -346,7 +346,7 @@ class AddSendViewController: UIViewController,
                 } else {
                     self.attemptsLabel.text = option
                     self.attemptsLabel.textAlignment = .center
-                    self.attemptsLabel.textColor = .label // Turn from gray to black
+                    self.attemptsLabel.textColor = .black // Turn from gray to black
                 }
             }
             alert.addAction(action)
@@ -375,7 +375,7 @@ class AddSendViewController: UIViewController,
             if let text = inputAlert.textFields?.first?.text, !text.isEmpty {
                 self.attemptsLabel.text = text
                 self.attemptsLabel.textAlignment = .center
-                self.attemptsLabel.textColor = .label // Turn from gray to black
+                self.attemptsLabel.textColor = .black // Turn from gray to black
             }
         }
 

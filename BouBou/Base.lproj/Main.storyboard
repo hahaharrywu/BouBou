@@ -1912,7 +1912,6 @@
                                                         <rect key="frame" x="0.0" y="0.0" width="57" height="23"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                         <color key="textColor" systemColor="systemGrayColor"/>
-                                                        <nil key="highlightedColor"/>
                                                     </label>
                                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalCompressionResistancePriority="250" image="chevron.up.chevron.down" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="0iP-Qi-qaT">
                                                         <rect key="frame" x="64.999999999999986" y="1.3333333333333321" width="15.333333333333329" height="20.666666666666668"/>
@@ -1945,7 +1944,6 @@
                                                         <rect key="frame" x="0.0" y="0.0" width="57" height="23"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                         <color key="textColor" systemColor="systemGrayColor"/>
-                                                        <nil key="highlightedColor"/>
                                                     </label>
                                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" image="chevron.up.chevron.down" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="9vK-YU-EJO">
                                                         <rect key="frame" x="64.999999999999986" y="1.3333333333333321" width="15.333333333333329" height="20.666666666666668"/>
