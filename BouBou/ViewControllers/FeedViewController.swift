@@ -8,6 +8,7 @@
 import UIKit
 import Firebase
 import FirebaseAuth
+import SDWebImage
 
 // This struct represents one send record fetched from Firebase to display in the feed
 struct FeedSend {
@@ -65,7 +66,7 @@ class FeedViewController: UIViewController, UITableViewDelegate, UITableViewData
     var initialMode: FeedMode? = nil
     
     // Simple image cache: URL string → UIImage
-    var imageCache = NSCache<NSString, UIImage>()
+//    var imageCache = NSCache<NSString, UIImage>()
 
     // Existing sends array
     var sends: [FeedSend] = []
@@ -284,12 +285,11 @@ class FeedViewController: UIViewController, UITableViewDelegate, UITableViewData
         }
 
 
-        // Avatar image load from user profile
+       
         if let cachedUrlString = avatarUrlCache[send.userId], let cachedUrl = URL(string: cachedUrlString) {
             print("👤 Using cached avatar for \(send.userId)")
-            loadImage(with: cachedUrl, into: cell.avatarImageView)
+            cell.avatarImageView.sd_setImage(with: cachedUrl, placeholderImage: UIImage(named: "Avatar_Cat"))
         } else {
-            // Fetch from Firestore
             let db = Firestore.firestore()
             db.collection("users").document(send.userId).getDocument { snapshot, error in
                 if let doc = snapshot, doc.exists,
@@ -297,12 +297,9 @@ class FeedViewController: UIViewController, UITableViewDelegate, UITableViewData
                    let avatarUrl = URL(string: avatarUrlString) {
                     print("👤 Loaded avatar from Firestore for \(send.userId): \(avatarUrlString)")
 
-                    // Save to cache
                     self.avatarUrlCache[send.userId] = avatarUrlString
-
-                    // Set image
                     DispatchQueue.main.async {
-                        self.loadImage(with: avatarUrl, into: cell.avatarImageView)
+                        cell.avatarImageView.sd_setImage(with: avatarUrl, placeholderImage: UIImage(named: "Avatar_Cat"))
                     }
                 } else {
                     print("👤 No avatar found for \(send.userId), using default")
@@ -313,17 +310,16 @@ class FeedViewController: UIViewController, UITableViewDelegate, UITableViewData
             }
         }
 
-
-
-        // Load the send image from URL (if any)
         if let url = URL(string: send.imageUrl), !send.imageUrl.isEmpty {
             cell.sendImageView.contentMode = .scaleAspectFill
-            print("🖼️ Loading image from URL: \(send.imageUrl)")
-            loadImage(with: url, into: cell.sendImageView)
+            print("🖼️ Loading image from URL (SDWebImage): \(send.imageUrl)")
+            cell.sendImageView.sd_setImage(with: url, placeholderImage: UIImage(named: "Placeholder_Send"))
         } else {
             print("🖼️ No image URL, showing default photo.")
             cell.sendImageView.contentMode = .scaleAspectFit
+            cell.sendImageView.image = UIImage(named: "Placeholder_Send")
         }
+
         
         cell.optionsButtonAction = { [weak self] in
             guard let self = self else { return }
@@ -424,44 +420,4 @@ class FeedViewController: UIViewController, UITableViewDelegate, UITableViewData
             self.tableView.refreshControl?.endRefreshing()
         }
     }
-    
-    // Helper function to load image with cache + retry logic
-    func loadImage(with url: URL, into imageView: UIImageView, retryCount: Int = 3) {
-        let urlString = url.absoluteString as NSString
-
-        // First check cache
-        if let cachedImage = imageCache.object(forKey: urlString) {
-            print("⚡️ Using cached image!")
-            DispatchQueue.main.async {
-                imageView.image = cachedImage
-            }
-            return
-        }
-
-        // Not cached → download
-        URLSession.shared.dataTask(with: url) { data, _, error in
-            if let data = data, let downloadedImage = UIImage(data: data) {
-                DispatchQueue.main.async {
-                    print("✅ Image data loaded successfully!")
-                    self.imageCache.setObject(downloadedImage, forKey: urlString)
-                    imageView.image = downloadedImage
-                    
-                    imageView.setNeedsLayout()
-                    imageView.layoutIfNeeded()
-                }
-            } else if retryCount > 0 {
-                print("❌ Error loading image → retrying... (\(retryCount) left)")
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    self.loadImage(with: url, into: imageView, retryCount: retryCount - 1)
-                }
-            } else {
-                print("❌ Failed to load image after retries.")
-                DispatchQueue.main.async {
-                    imageView.image = UIImage(systemName: "photo")
-                }
-            }
-        }.resume()
-    }
-
-
 }

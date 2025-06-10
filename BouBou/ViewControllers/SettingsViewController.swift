@@ -10,6 +10,8 @@ import Firebase
 import FirebaseStorage
 import FirebaseFirestore
 import FirebaseAuth
+import SDWebImage
+
 
 class SettingsViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
@@ -44,15 +46,12 @@ class SettingsViewController: UIViewController, UIImagePickerControllerDelegate,
 
         // Enable user interaction on avatarImageView
         avatarImageView.isUserInteractionEnabled = true
-        avatarImageView.image = UIImage(systemName: "person.circle")
-        avatarImageView.tintColor = UIColor(red: 200/255, green: 117/255, blue: 95/255, alpha: 1.0)
 
         let avatarTapGesture = UITapGestureRecognizer(target: self, action: #selector(avatarTapped))
         avatarImageView.addGestureRecognizer(avatarTapGesture)
         
         // Enable user interaction on backgroundImageView
         backgroundImageView.isUserInteractionEnabled = true
-        backgroundImageView.image = UIImage(systemName: "photo")
         backgroundImageView.contentMode = .scaleAspectFill
 
         let backgroundTapGesture = UITapGestureRecognizer(target: self, action: #selector(backgroundTapped))
@@ -135,22 +134,15 @@ class SettingsViewController: UIViewController, UIImagePickerControllerDelegate,
                     if let url = URL(string: trimmed) {
                         print("✅ Loaded avatarUrl from Firestore: \(avatarUrlString)")
                         self.avatarUrlToSave = avatarUrlString
+                        if let cachedImage = SDImageCache.shared.imageFromCache(forKey: trimmed) {
+                            print("⚡️ Avatar loaded instantly from cache.")
+                            self.avatarImageView.image = cachedImage
+                        } else {
+                            print("🐢 Avatar not cached, loading async.")
+                            self.avatarImageView.sd_setImage(with: url, placeholderImage: UIImage(named: "Avatar_Cat"))
+                        }
 
-                        URLSession.shared.dataTask(with: url) { data, _, error in
-                            if let data = data, let image = UIImage(data: data) {
-                                DispatchQueue.main.async {
-                                    self.avatarImageView.image = image
-                                }
-                            } else {
-                                print("❌ Failed to load avatar image data from URL: \(url.absoluteString)")
-                                if let error = error {
-                                    print("❌ URLSession error: \(error.localizedDescription)")
-                                }
-                                DispatchQueue.main.async {
-                                    self.avatarImageView.image = UIImage(named: "Avatar_Cat")
-                                }
-                            }
-                        }.resume()
+
                     } else {
                         print("❌ Invalid avatarUrl string.")
                         self.avatarImageView.image = UIImage(named: "Avatar_Cat")
@@ -167,23 +159,15 @@ class SettingsViewController: UIViewController, UIImagePickerControllerDelegate,
                     if let url = URL(string: trimmed) {
                         print("✅ Loaded backgroundUrl from Firestore: \(backgroundUrlString)")
                         self.backgroundUrlToSave = backgroundUrlString
+                        if let cachedImage = SDImageCache.shared.imageFromCache(forKey: trimmed) {
+                            print("⚡️ Background loaded instantly from cache.")
+                            self.backgroundImageView.image = cachedImage
+                        } else {
+                            print("🐢 Background not cached, loading async.")
+                            self.backgroundImageView.sd_setImage(with: url, placeholderImage: UIImage(named: "Background_ElCapitan"))
+                        }
 
-                        URLSession.shared.dataTask(with: url) { data, _, error in
-                            if let data = data, let image = UIImage(data: data) {
-                                DispatchQueue.main.async {
-                                    self.backgroundImageView.image = image
-                                }
-                            } else {
-                                print("❌ Failed to load background image data from URL: \(url.absoluteString)")
-                                if let error = error {
-                                    print("❌ URLSession error: \(error.localizedDescription)")
-                                }
-                                DispatchQueue.main.async {
-                                    self.backgroundImageView.image = UIImage(named: "Background_ElCapitan")
-                                    self.backgroundImageView.contentMode = .scaleAspectFill
-                                }
-                            }
-                        }.resume()
+
                     } else {
                         print("❌ Invalid backgroundUrl string.")
                         self.backgroundImageView.image = UIImage(named: "Background_ElCapitan")
@@ -417,6 +401,18 @@ class SettingsViewController: UIViewController, UIImagePickerControllerDelegate,
                 }
             }
         }
+        
+        SDWebImageManager.shared.loadImage(
+            with: URL(string: avatarUrlToSave),
+            options: .highPriority,
+            progress: nil
+        ) { image, _, _, _, _, _ in
+            if let image = image {
+                print("🧊 Avatar pre-cached.")
+                self.avatarImageView.image = image
+            }
+        }
+
     }
 
 

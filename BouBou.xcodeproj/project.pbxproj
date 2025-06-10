@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A6859F422DF7ADA1002A511E /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = A6859F412DF7ADA1002A511E /* SDWebImage */; };
+		A6859F442DF7ADA1002A511E /* SDWebImageMapKit in Frameworks */ = {isa = PBXBuildFile; productRef = A6859F432DF7ADA1002A511E /* SDWebImageMapKit */; };
 		A6CA15B22DE3BA21005C56B6 /* FirebaseAI in Frameworks */ = {isa = PBXBuildFile; productRef = A6CA15B12DE3BA21005C56B6 /* FirebaseAI */; };
 		A6CA15B42DE3BA21005C56B6 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = A6CA15B32DE3BA21005C56B6 /* FirebaseAnalytics */; };
 		A6CA15B62DE3BA21005C56B6 /* FirebaseAnalyticsOnDeviceConversion in Frameworks */ = {isa = PBXBuildFile; productRef = A6CA15B52DE3BA21005C56B6 /* FirebaseAnalyticsOnDeviceConversion */; };
@@ -103,6 +105,8 @@
 				A6CA15B82DE3BA21005C56B6 /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */,
 				A6CA15BE2DE3BA21005C56B6 /* FirebaseAuth in Frameworks */,
 				A6CA15D02DE3BA21005C56B6 /* FirebaseFunctionsCombine-Community in Frameworks */,
+				A6859F442DF7ADA1002A511E /* SDWebImageMapKit in Frameworks */,
+				A6859F422DF7ADA1002A511E /* SDWebImage in Frameworks */,
 				A6CA15E02DE3BA21005C56B6 /* FirebaseStorageCombine-Community in Frameworks */,
 				A6CA15BC2DE3BA21005C56B6 /* FirebaseAppDistribution-Beta in Frameworks */,
 				A6CA15E22DE3BA21005C56B6 /* FirebaseVertexAI in Frameworks */,
@@ -203,6 +207,8 @@
 				A6CA15DD2DE3BA21005C56B6 /* FirebaseStorage */,
 				A6CA15DF2DE3BA21005C56B6 /* FirebaseStorageCombine-Community */,
 				A6CA15E12DE3BA21005C56B6 /* FirebaseVertexAI */,
+				A6859F412DF7ADA1002A511E /* SDWebImage */,
+				A6859F432DF7ADA1002A511E /* SDWebImageMapKit */,
 			);
 			productName = BouBou;
 			productReference = A6CA157A2DE3A978005C56B6 /* BouBou.app */;
@@ -288,6 +294,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				A6CA15B02DE3BA21005C56B6 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				A6859F402DF7ADA1002A511E /* XCRemoteSwiftPackageReference "SDWebImage" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A6CA157B2DE3A978005C56B6 /* Products */;
@@ -371,7 +378,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 5CV6784J47;
+				DEVELOPMENT_TEAM = TU3CYP47QH;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BouBou/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = BouBou;
@@ -406,7 +413,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 5CV6784J47;
+				DEVELOPMENT_TEAM = TU3CYP47QH;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BouBou/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = BouBou;
@@ -662,6 +669,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		A6859F402DF7ADA1002A511E /* XCRemoteSwiftPackageReference "SDWebImage" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SDWebImage/SDWebImage";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.21.0;
+			};
+		};
 		A6CA15B02DE3BA21005C56B6 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
@@ -673,6 +688,16 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		A6859F412DF7ADA1002A511E /* SDWebImage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A6859F402DF7ADA1002A511E /* XCRemoteSwiftPackageReference "SDWebImage" */;
+			productName = SDWebImage;
+		};
+		A6859F432DF7ADA1002A511E /* SDWebImageMapKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A6859F402DF7ADA1002A511E /* XCRemoteSwiftPackageReference "SDWebImage" */;
+			productName = SDWebImageMapKit;
+		};
 		A6CA15B12DE3BA21005C56B6 /* FirebaseAI */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = A6CA15B02DE3BA21005C56B6 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;

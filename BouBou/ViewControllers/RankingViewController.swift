@@ -10,6 +10,7 @@ import Firebase
 import FirebaseStorage
 import FirebaseFirestore
 import FirebaseAuth
+import SDWebImage
 
 class RankingViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
 
@@ -27,6 +28,8 @@ class RankingViewController: UIViewController, UITableViewDataSource, UITableVie
     var avatarUrlCache = [String: String]()   // userId -> avatarUrl
     var userNameCache = [String: String]()    // userId -> customUserName
     var rankingData: [(rank: Int, userId: String, name: String, score: Int)] = []
+//    let imageCache = NSCache<NSString, UIImage>()
+
 
     // MARK: - Outlets
 
@@ -76,15 +79,38 @@ class RankingViewController: UIViewController, UITableViewDataSource, UITableVie
         }
     }
 
-    func loadImage(with url: URL, into imageView: UIImageView) {
-        URLSession.shared.dataTask(with: url) { data, _, _ in
-            if let data = data, let image = UIImage(data: data) {
-                DispatchQueue.main.async {
-                    imageView.image = image
-                }
-            }
-        }.resume()
-    }
+//    func loadImage(with url: URL, into imageView: UIImageView) {
+//        URLSession.shared.dataTask(with: url) { data, _, _ in
+//            if let data = data, let image = UIImage(data: data) {
+//                DispatchQueue.main.async {
+//                    imageView.image = image
+//                }
+//            }
+//        }.resume()
+//    }
+    
+//    func loadImage(with url: URL, into imageView: UIImageView) {
+//        let cacheKey = url.absoluteString as NSString
+//
+//        // If cached, use directly
+//        if let cachedImage = imageCache.object(forKey: cacheKey) {
+//            DispatchQueue.main.async {
+//                imageView.image = cachedImage
+//            }
+//            return
+//        }
+//
+//        // If not cached, download and cache
+//        URLSession.shared.dataTask(with: url) { data, _, error in
+//            if let data = data, let image = UIImage(data: data) {
+//                self.imageCache.setObject(image, forKey: cacheKey)
+//                DispatchQueue.main.async {
+//                    imageView.image = image
+//                }
+//            }
+//        }.resume()
+//    }
+
 
     func configureCell(_ cell: RankingTableViewCell, with item: (rank: Int, userId: String, name: String, score: Int)) {
         cell.rankLabel.text = "\(item.rank)"
@@ -96,10 +122,12 @@ class RankingViewController: UIViewController, UITableViewDataSource, UITableVie
             cell.nameLabel.text = item.name
         }
 
+        
         if let cachedUrl = avatarUrlCache[item.userId], let url = URL(string: cachedUrl) {
-            loadImage(with: url, into: cell.avatarImageView)
+            cell.avatarImageView.sd_setImage(with: url, placeholderImage: UIImage(named: "Avatar_Cat"))
         } else {
             cell.avatarImageView.image = UIImage(named: "Avatar_Cat")
+            
             let db = Firestore.firestore()
             db.collection("users").document(item.userId).getDocument { snapshot, _ in
                 guard let doc = snapshot, doc.exists else {
@@ -113,8 +141,9 @@ class RankingViewController: UIViewController, UITableViewDataSource, UITableVie
                 DispatchQueue.main.async {
                     if !avatarUrl.isEmpty, let url = URL(string: avatarUrl) {
                         self.avatarUrlCache[item.userId] = avatarUrl
-                        self.loadImage(with: url, into: cell.avatarImageView)
+                        cell.avatarImageView.sd_setImage(with: url, placeholderImage: UIImage(named: "Avatar_Cat"))
                     }
+
                     if !customName.isEmpty {
                         self.userNameCache[item.userId] = customName
                         cell.nameLabel.text = customName
@@ -122,6 +151,7 @@ class RankingViewController: UIViewController, UITableViewDataSource, UITableVie
                 }
             }
         }
+
     }
 
     // MARK: - Firestore Data Fetching

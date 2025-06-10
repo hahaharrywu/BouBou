@@ -10,6 +10,8 @@ import SwiftUI
 import Charts
 import Firebase
 import FirebaseAuth
+import SDWebImage
+
 
 
 class ProfileViewController: UIViewController {
@@ -144,9 +146,9 @@ class ProfileViewController: UIViewController {
         navigationController?.setNavigationBarHidden(true, animated: false)
         
         // avatar image load
-        if let user = Auth.auth().currentUser {
-            loadAvatarImage(for: user.uid)
-        }
+//        if let user = Auth.auth().currentUser {
+//            loadAvatarImage(for: user.uid)
+//        }
     }
     
     
@@ -175,19 +177,8 @@ class ProfileViewController: UIViewController {
                let avatarUrl = URL(string: avatarUrlString.trimmingCharacters(in: .whitespacesAndNewlines)) {
                 
                 print("✅ Loaded avatarUrl: \(avatarUrlString)")
-                
-                URLSession.shared.dataTask(with: avatarUrl) { data, response, error in
-                    if let data = data, let image = UIImage(data: data) {
-                        DispatchQueue.main.async {
-                            self.avatarImageView.image = image
-                        }
-                    } else {
-                        print("❌ Failed to load avatar image data. Using default.")
-                        DispatchQueue.main.async {
-                            self.avatarImageView.image = UIImage(named: "Avatar_Cat")
-                        }
-                    }
-                }.resume()
+                self.avatarImageView.sd_setImage(with: avatarUrl, placeholderImage: UIImage(named: "Avatar_Cat"))
+
                 
             } else {
                 print("ℹ️ No valid avatarUrl found. Using default.")

@@ -8,6 +8,7 @@
 import UIKit
 import FirebaseAuth
 import FirebaseFirestore
+import SDWebImage
 
 struct Friend {
     let userId: String
@@ -69,18 +70,24 @@ class FriendsViewController: UIViewController, UITableViewDelegate, UITableViewD
         cell.commentLabel.text = friend.comment
 
         // avatar
-        cell.avatarImageView.image = UIImage(named: "Avatar_Cat")
-
-        // head shot
+//        cell.avatarImageView.image = UIImage(named: "Avatar_Cat")
+//
+//        // head shot
+//        if let url = URL(string: friend.avatarUrl), !friend.avatarUrl.isEmpty {
+//            URLSession.shared.dataTask(with: url) { data, _, _ in
+//                if let data = data, let image = UIImage(data: data) {
+//                    DispatchQueue.main.async {
+//                        cell.avatarImageView.image = image
+//                    }
+//                }
+//            }.resume()
+//        }
         if let url = URL(string: friend.avatarUrl), !friend.avatarUrl.isEmpty {
-            URLSession.shared.dataTask(with: url) { data, _, _ in
-                if let data = data, let image = UIImage(data: data) {
-                    DispatchQueue.main.async {
-                        cell.avatarImageView.image = image
-                    }
-                }
-            }.resume()
+            cell.avatarImageView.sd_setImage(with: url, placeholderImage: UIImage(named: "Avatar_Cat"))
+        } else {
+            cell.avatarImageView.image = UIImage(named: "Avatar_Cat")
         }
+
 
         return cell
     }
