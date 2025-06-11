@@ -8,6 +8,7 @@
 import UIKit
 import Firebase
 import FirebaseAuth
+import SDWebImage
 
 class LastSessionViewController: UIViewController {
     
@@ -17,6 +18,8 @@ class LastSessionViewController: UIViewController {
     
 
     var sends: [FeedSend] = []
+    var userNameCache: [String: String] = [:]
+    var avatarUrlCache: [String: String] = [:]
 
 
     override func viewDidLoad() {
@@ -123,22 +126,67 @@ extension LastSessionViewController: UITableViewDelegate, UITableViewDataSource 
 
         let send = sends[indexPath.row]
 
-        cell.nameLabel.text = send.userName
+
         cell.sendInfoLabel.text = send.colorGrade
         cell.summaryLabel.text = "..."
         cell.feelingLabel.text = send.feeling
-        cell.avatarImageView.image = UIImage(systemName: "person.circle")
         cell.summaryLabel.text = summaryPhrase(for: send.status, attempts: send.attempts)
+        
+        if let cachedName = userNameCache[send.userId] {
+            cell.nameLabel.text = cachedName
+        } else {
+            let db = Firestore.firestore()
+            db.collection("users").document(send.userId).getDocument { snapshot, error in
+                if let doc = snapshot, doc.exists {
+                    let customName = doc.get("customUserName") as? String ?? ""
+                    let email = doc.get("email") as? String ?? "unknown@example.com"
+                    let fallbackName = email.components(separatedBy: "@").first ?? "Unknown"
+                    let finalName = customName.isEmpty ? fallbackName : customName
 
+                    self.userNameCache[send.userId] = finalName
 
-        if let url = URL(string: send.imageUrl), !send.imageUrl.isEmpty {
+                    DispatchQueue.main.async {
+                        if let visibleCell = tableView.cellForRow(at: indexPath) as? FeedTableViewCell {
+                            visibleCell.nameLabel.text = finalName
+                        }
+                    }
+                }
+            }
+        }
+
+        if let cachedUrl = avatarUrlCache[send.userId], let url = URL(string: cachedUrl) {
             URLSession.shared.dataTask(with: url) { data, _, _ in
                 if let data = data {
                     DispatchQueue.main.async {
-                        cell.sendImageView.image = UIImage(data: data)
+                        cell.avatarImageView.image = UIImage(data: data)
                     }
                 }
             }.resume()
+        } else {
+            let db = Firestore.firestore()
+            db.collection("users").document(send.userId).getDocument { snapshot, error in
+                if let doc = snapshot, doc.exists,
+                   let avatarUrl = doc.get("avatarUrl") as? String,
+                   !avatarUrl.isEmpty,
+                   let url = URL(string: avatarUrl) {
+                    self.avatarUrlCache[send.userId] = avatarUrl
+                    DispatchQueue.main.async {
+                        if let visibleCell = tableView.cellForRow(at: indexPath) as? FeedTableViewCell {
+                            visibleCell.avatarImageView.sd_setImage(with: url, placeholderImage: UIImage(named: "Avatar_Cat"))
+                        }
+                    }
+
+                } else {
+                    DispatchQueue.main.async {
+                        cell.avatarImageView.image = UIImage(named: "Avatar_Cat") // fallback image
+                    }
+                }
+            }
+        }
+
+
+        if let url = URL(string: send.imageUrl), !send.imageUrl.isEmpty {
+            cell.sendImageView.sd_setImage(with: url, placeholderImage: UIImage(systemName: "photo"))
         } else {
             cell.sendImageView.image = UIImage(systemName: "photo")
         }

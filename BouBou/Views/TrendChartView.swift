@@ -18,8 +18,11 @@ struct TrendChartView: View {
     let data: [DataPoint]
 
     var body: some View {
+        let sortedData = data.sorted { $0.date < $1.date }
+
+        
         Chart {
-            ForEach(data) { point in
+            ForEach(sortedData) { point in
                 LineMark(
                     x: .value("Week", point.date),
                     y: .value("Grade", point.grade)
@@ -28,7 +31,7 @@ struct TrendChartView: View {
             
             
             // y axis
-            RuleMark(x: .value("Start", data.map { $0.date }.min() ?? Date()))
+            RuleMark(x: .value("Start", sortedData.map { $0.date }.min() ?? Date()))
                 .foregroundStyle(.white)
                 .lineStyle(StrokeStyle(lineWidth: 2))
 

@@ -184,6 +184,7 @@
                                 <constraints>
                                     <constraint firstAttribute="height" constant="36" id="WqW-xC-R3p"/>
                                 </constraints>
+                                <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
                             </textField>

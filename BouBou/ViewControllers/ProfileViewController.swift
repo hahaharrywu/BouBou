@@ -145,10 +145,10 @@ class ProfileViewController: UIViewController {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: false)
         
-        // avatar image load
-//        if let user = Auth.auth().currentUser {
-//            loadAvatarImage(for: user.uid)
-//        }
+
+        if let user = Auth.auth().currentUser {
+            reloadAvatarImageFresh(for: user.uid)
+        }
     }
     
     
@@ -503,4 +503,46 @@ class ProfileViewController: UIViewController {
         let vc = storyboard.instantiateViewController(withIdentifier: "SettingsViewController")
         self.navigationController?.pushViewController(vc, animated: true)
     }
+    
+    func reloadAvatarImageFresh(for userId: String) {
+        let db = Firestore.firestore()
+
+        db.collection("users").document(userId).getDocument { documentSnapshot, error in
+            if let error = error {
+                print("❌ Failed to load avatar: \(error.localizedDescription)")
+                DispatchQueue.main.async {
+                    self.avatarImageView.image = UIImage(named: "Avatar_Cat")
+                }
+                return
+            }
+
+            guard let document = documentSnapshot, document.exists else {
+                print("ℹ️ Avatar document doesn't exist. Using default.")
+                DispatchQueue.main.async {
+                    self.avatarImageView.image = UIImage(named: "Avatar_Cat")
+                }
+                return
+            }
+
+            if let avatarUrlString = document.get("avatarUrl") as? String,
+               let avatarUrl = URL(string: avatarUrlString.trimmingCharacters(in: .whitespacesAndNewlines)) {
+
+                print("🔁 Reloading avatar image with refresh: \(avatarUrlString)")
+                let sdOptions: SDWebImageOptions = [.refreshCached, .highPriority]
+
+                self.avatarImageView.sd_setImage(
+                    with: avatarUrl,
+                    placeholderImage: UIImage(named: "Avatar_Cat"),
+                    options: sdOptions
+                )
+
+            } else {
+                print("ℹ️ No valid avatarUrl found. Using default.")
+                DispatchQueue.main.async {
+                    self.avatarImageView.image = UIImage(named: "Avatar_Cat")
+                }
+            }
+        }
+    }
+
 }

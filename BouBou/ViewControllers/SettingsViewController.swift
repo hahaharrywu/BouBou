@@ -277,8 +277,16 @@ class SettingsViewController: UIViewController, UIImagePickerControllerDelegate,
                     if let url = url {
                         self.avatarUrlToSave = url
                         self.updateUserProfileField(key: "avatarUrl", value: url)
+
+                        // cache image
+                        SDImageCache.shared.store(selectedImage, forKey: url)
+
+                        // UI refresh
+                        self.avatarImageView.image = selectedImage
+                        print("✅ Avatar image immediately updated and cached.")
                     }
                 }
+
             }
 
         } else {
